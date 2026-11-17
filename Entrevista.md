@@ -68,7 +68,7 @@ La Municipalidad Distrital de Los Olivos sería una **aliada potencial por gesti
 | La municipalidad no autoriza los espacios a tiempo | Iniciar la gestión en la semana 1 y, si se retrasa, mover el calendario sin acortar la línea base. |
 | Baja participación | Convocar a grupos que ya juegan con un organizador conocido y acompañar las primeras actividades. |
 | El cierre registrado en la app no refleja lo ocurrido | Medir el indicador con observación humana y usar la app solo como dato de apoyo. |
-| Fallas de conexión en el espacio | QR impreso con código de respaldo y acompañamiento del equipo. |
+| Fallas de conexión en el espacio | QR impreso en el espacio y acompañamiento del equipo. |
 
 **Para revisar:** confirmar distrito, duración y escala. Los tres espacios de Los Olivos ya aparecen como escenario de demo en la arquitectura; su uso real en el piloto todavía debe acordarse.
 

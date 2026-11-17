@@ -99,7 +99,7 @@ para("<b>Pukllay:</b> web app para activar y cuidar parques y losas junto con la
 para(
     "<b>1. Comprometerse:</b> la municipalidad publica espacios, reglas y horarios; el vecino crea o se une a una actividad aceptando “dejo el espacio limpio”.<br/>"
     "<b>2. Llegar:</b> escanea el QR del espacio; solo se valida la cercanía en ese momento, sin guardar recorridos.<br/>"
-    "<b>3. Cerrar:</b> lista de cuidado de 3 puntos, foto “después” e incidencias al panel municipal; se distinguen los daños preexistentes.",
+    "<b>3. Cerrar:</b> lista de cuidado de 3 puntos, foto “después” e incidencias al panel municipal; se comparan fotos antes y después.",
     RIGHT + 8, TOP + 51, BW - 16, 8.4, 10.8, maxheight=76,
 )
 para("El espacio suma a su racha de cuidado: se reconoce el lugar, no a las personas, sin rankings públicos.", RIGHT + 8, TOP + 129, BW - 16, 7.9, 9.5, maxheight=20)
@@ -146,7 +146,7 @@ para("05", 36, 467, 20, 10, 12, GOLD, True)
 para("¿CÓMO MEDIREMOS EL IMPACTO?", 55, 467, 650, 10, 12, INK, True)
 para(
     "<b>Indicador observable:</b> % de actividades observadas con cierre responsable: residuos recogidos, instalaciones "
-    "sin nuevos daños atribuibles al grupo y espacio liberado a tiempo. Se distinguen los daños preexistentes.",
+    "sin nuevos daños atribuibles al grupo y espacio liberado a tiempo. Se comparan fotos antes y después.",
     36, 485, W - 72, 8.6, 11, maxheight=24,
 )
 para(
