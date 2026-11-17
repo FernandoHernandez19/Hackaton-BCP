@@ -11,6 +11,9 @@ const DATA_FILE = path.join(process.env.DATA_DIR || path.join(ROOT, "data"), "db
 const PORT = Number(process.env.PORT || 3000);
 
 // ---------- Datos simulados (no son datos reales de ninguna municipalidad) ----------
+// Par de fotos de ejemplo para el cierre de muestra: solo se usan si los archivos existen.
+const demoPhoto = (f) => [path.join(PUBLIC, "images", "app", f), path.join(path.dirname(DATA_FILE), "images-app", f)].some((x) => fs.existsSync(x)) ? "/images/app/" + f : undefined;
+
 function seed() {
   const h = (hours) => new Date(Date.now() + hours * 3600e3).toISOString();
   const N = ["Valeria", "Diego", "Camila", "Joaquín", "Sofía", "Mateo", "Lucía", "Renzo", "Ximena", "Andrés", "Fiorella", "Bruno", "Daniela", "Álvaro", "Mía", "Gael"];
@@ -30,7 +33,8 @@ function seed() {
       { id: "act-1", spaceId: "losa-demo-1", title: "Vóley mixto de la tarde", category: "Vóley", startsAt: h(1), capacity: 12, status: "programada", participants: P(N.slice(0, 7)) },
       { id: "act-2", spaceId: "parque-demo-2", title: "Fútbol recreativo", category: "Fútbol", startsAt: h(3), capacity: 20, status: "programada", participants: P(N.slice(6, 12)) },
       { id: "act-3", spaceId: "losa-demo-1", title: "Básquet 3x3 (ya terminó)", category: "Básquet", startsAt: h(-26), capacity: 10, status: "completada",
-        participants: P(N.slice(1, 7), true), closure: { cleanSpace: true, checklist: { basura: true, equipos: true, areaOrdenada: true }, closedAt: h(-24), closedBy: "Camila", confirmedBy: ["Diego", "Joaquín"] } },
+        participants: P(N.slice(1, 7), true), closure: { cleanSpace: true, checklist: { basura: true, equipos: true, areaOrdenada: true }, closedAt: h(-24), closedBy: "Camila", confirmedBy: ["Diego", "Joaquín"] },
+        ...(demoPhoto("demo-antes.jpg") && demoPhoto("demo-despues.jpg") ? { beforePhoto: demoPhoto("demo-antes.jpg"), afterPhoto: demoPhoto("demo-despues.jpg"), demoPhotos: true } : {}) },
     ],
     proposals: [
       { id: "prop-1", spaceId: "losa-demo-1", title: "Vóley sentado para adultos mayores", category: "Vóley", description: "Una hora suave, con red baja, para que todos jueguen.", proposedBy: "Lucía", createdAt: h(-20), status: "abierta", votes: ["Lucía", "Diego", "Camila", "Renzo", "Sofía", "Mateo"] },
