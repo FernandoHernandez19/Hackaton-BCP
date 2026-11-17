@@ -87,6 +87,14 @@ function stats() {
 const clean = (s, n = 200) => String(s ?? "").slice(0, n).trim();
 const okPhoto = (p) => (typeof p === "string" && p.startsWith("data:image/") && p.length < 1_500_000 ? p : undefined);
 
+// Valida que la hora esté dentro del horario habilitado, no sea pasada y no choque con otra actividad.
+function checkSlot(space, when) {
+  const hour = new Date(when.getTime() - 5 * 3600e3).getUTCHours(); // hora de Lima (UTC-5)
+  if (space.hours && (hour < space.hours.from || hour >= space.hours.to)) throw httpErr(400, "Ese horario no está habilitado por la municipalidad");
+  if (when.getTime() < Date.now() - 5 * 60e3) throw httpErr(400, "Ese horario ya pasó");
+  if (db.activities.some((a) => a.spaceId === space.id && a.status !== "completada" && Math.abs(new Date(a.startsAt) - when) < 3600e3)) throw httpErr(400, "Ese horario ya está ocupado");
+}
+
 function route(method, url, body) {
   const m = (re) => url.pathname.match(re);
   let r;
@@ -99,9 +107,7 @@ function route(method, url, body) {
     const title = clean(body.title, 80);
     const when = new Date(body.startsAt);
     if (!space || !title || isNaN(when)) throw httpErr(400, "Faltan datos de la actividad");
-    const hour = new Date(when.getTime() - 5 * 3600e3).getUTCHours(); // hora de Lima (UTC-5)
-    if (space.hours && (hour < space.hours.from || hour >= space.hours.to)) throw httpErr(400, "Ese horario no está habilitado por la municipalidad");
-    if (db.activities.some((a) => a.spaceId === space.id && a.status !== "completada" && Math.abs(new Date(a.startsAt) - when) < 3600e3)) throw httpErr(400, "Ese horario ya está ocupado");
+    checkSlot(space, when);
     const act = { id: "act-" + Date.now().toString(36), spaceId: space.id, title, category: clean(body.category, 30) || "Actividad", startsAt: when.toISOString(),
       capacity: Math.min(space.capacity, Math.max(2, Number(body.capacity) || 10)), status: "programada", notes: clean(body.notes, 200),
       organizer: clean(body.name, 40) || "Vecino",
@@ -132,6 +138,7 @@ function route(method, url, body) {
       if (photo) act.beforePhoto = photo;
     } else {
       if (!person) throw httpErr(400, "Solo quienes participan pueden cerrar");
+      if (!person.checkedInAt) throw httpErr(400, "Primero confirma tu llegada con el check-in");
       if (act.status === "completada") throw httpErr(400, "La actividad ya está cerrada");
       const c = body.checklist || {};
       const checklist = { basura: !!c.basura, equipos: !!c.equipos, areaOrdenada: !!c.areaOrdenada };
@@ -180,6 +187,7 @@ function route(method, url, body) {
       if (pr.status !== "abierta") throw httpErr(400, "Esta propuesta ya es una actividad");
       const when = new Date(body.startsAt); if (isNaN(when)) throw httpErr(400, "Elige fecha y hora");
       const sp = db.spaces.find((s) => s.id === pr.spaceId);
+      checkSlot(sp, when);
       const act = { id: "act-" + Date.now().toString(36), spaceId: pr.spaceId, title: pr.title, category: pr.category, startsAt: when.toISOString(), capacity: Math.min(sp.capacity, 12), status: "programada", participants: pr.votes.slice(0, 3).map((v) => ({ name: v, committed: true })) };
       db.activities.push(act); pr.status = "programada"; pr.activityId = act.id; feed("create", `${pr.title} pasó de propuesta a actividad en ${sp.name}`);
       save(); return act;
@@ -201,7 +209,7 @@ http.createServer((req, res) => {
     let raw = "";
     req.on("data", (c) => { raw += c; if (raw.length > 4_000_000) req.destroy(); });
     req.on("end", () => {
-      try { send(200, JSON.stringify(route(req.method, url, raw ? JSON.parse(raw) : {}))); }
+      try { let body = {}; if (raw) { try { body = JSON.parse(raw); } catch { throw httpErr(400, "Datos inválidos"); } } send(200, JSON.stringify(route(req.method, url, body))); }
       catch (e) { send(e.status || 500, JSON.stringify({ error: e.status ? e.message : "Error del servidor" })); }
     });
     return;
