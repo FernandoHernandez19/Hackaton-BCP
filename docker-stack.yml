@@ -1,0 +1,24 @@
+# Stack aislado para Server TEC (Docker Swarm + Traefik). No toca los stacks existentes.
+# Antes: docker build -t juegabarrio:latest .   |   Luego: docker stack deploy -c docker-stack.yml juegabarrio
+version: "3.8"
+services:
+  app:
+    image: juegabarrio:latest
+    volumes:
+      - juegabarrio_data:/data
+    networks:
+      - Tecmastersia
+    deploy:
+      replicas: 1
+      labels:
+        - traefik.enable=true
+        - traefik.http.routers.juegabarrio.rule=Host(`win.crm-ia.org`)
+        - traefik.http.routers.juegabarrio.entrypoints=websecure
+        - traefik.http.routers.juegabarrio.tls.certresolver=letsencryptresolver
+        - traefik.http.services.juegabarrio.loadbalancer.server.port=3000
+volumes:
+  juegabarrio_data:
+networks:
+  Tecmastersia:
+    external: true
+    name: Tecmastersia

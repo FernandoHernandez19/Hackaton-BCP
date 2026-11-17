@@ -53,3 +53,13 @@ Si todo está bien: *Merge pull request* en GitHub. Si no, deja un comentario cl
 | [.github/ISSUE_TEMPLATE/tarea.md](.github/ISSUE_TEMPLATE/tarea.md) | Plantilla para crear tareas (*issues*) en GitHub. |
 | [.github/pull_request_template.md](.github/pull_request_template.md) | Plantilla que aparece al abrir un pull request. |
 | [.gitignore](.gitignore) | Lista de archivos que Git no debe subir (secretos y archivos locales). |
+
+## Ejecutar la demo (JuegaBarrio)
+
+No necesita instalar nada, solo Node 20 o superior:
+
+```bash
+node server.mjs
+```
+
+Abre http://localhost:3000. Los datos de ejemplo se guardan en `data/db.json` (no se sube a git). En el panel municipal hay un botón para reiniciarlos.

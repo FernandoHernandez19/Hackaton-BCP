@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>JuegaBarrio — 10 rutas UX</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root { --ink:#0b1830; --paper:#f6f3eb; --lime:#b9ff27; --pink:#ff6f61; --blue:#56c9ff; --line:rgba(11,24,48,.16); }
+    * { box-sizing:border-box; } html { scroll-behavior:smooth; }
+    body { margin:0; background:var(--paper); color:var(--ink); font-family:Manrope, sans-serif; }
+    button { font:inherit; cursor:pointer; } .mono { font-family:"DM Mono", monospace; letter-spacing:.04em; }
+    .top { position:relative; isolation:isolate; overflow:hidden; min-height:320px; padding:26px clamp(20px,6vw,88px) 48px; color:#fff; background:#071426; }
+    .top::before { content:""; position:absolute; inset:0; z-index:-2; background:linear-gradient(90deg,rgba(7,20,38,.94) 4%,rgba(7,20,38,.64) 52%,rgba(7,20,38,.2)),url('public/images/juegabarrio-hero-v1.png') center 37%/cover; }
+    .top::after { content:""; position:absolute; left:-10%; right:-10%; bottom:-38px; height:80px; z-index:-1; background:var(--paper); border-radius:50% 50% 0 0; }
+    .brand { display:flex; align-items:center; justify-content:space-between; font-size:12px; font-weight:800; letter-spacing:.12em; }
+    .brand strong { font:20px "Archivo Black"; letter-spacing:-.07em; } .brand strong em { color:var(--lime); font-style:normal; }
+    .eyebrow { display:inline-flex; margin-top:58px; padding:7px 10px; border:1px solid rgba(255,255,255,.5); border-radius:999px; font-size:11px; font-weight:800; letter-spacing:.1em; }
+    h1 { max-width:700px; margin:13px 0 10px; font:clamp(36px,6.2vw,76px)/.93 "Archivo Black"; letter-spacing:-.075em; }
+    .top p { max-width:540px; margin:0; font-size:15px; line-height:1.55; color:#e2e9f4; }
+    main { max-width:1320px; margin:auto; padding:22px clamp(16px,4vw,58px) 64px; }
+    .intro { display:flex; gap:28px; align-items:flex-end; justify-content:space-between; margin:12px 0 28px; }
+    .intro h2 { margin:0; font:clamp(25px,3.2vw,43px)/1 "Archivo Black"; letter-spacing:-.06em; } .intro p { max-width:450px; margin:0; font-size:14px; line-height:1.55; }
+    .stage { display:grid; grid-template-columns:minmax(0,1.04fr) minmax(310px,.96fr); min-height:610px; overflow:hidden; border:1px solid var(--line); border-radius:30px; background:#fff; box-shadow:0 20px 50px rgba(9,22,45,.1); }
+    .story { padding:clamp(25px,4vw,58px); background:var(--accent); position:relative; overflow:hidden; }
+    .story::before { content:""; position:absolute; width:410px; height:410px; right:-190px; bottom:-220px; border:2px solid rgba(11,24,48,.16); border-radius:50%; box-shadow:0 0 0 28px rgba(11,24,48,.08),0 0 0 56px rgba(11,24,48,.04); }
+    .number { color:rgba(11,24,48,.55); font-size:11px; font-weight:800; } .story h3 { position:relative; max-width:570px; margin:23px 0 15px; font:clamp(38px,5vw,69px)/.91 "Archivo Black"; letter-spacing:-.075em; }
+    .story > p { position:relative; max-width:455px; margin:0; font-size:16px; line-height:1.6; }
+    .flow { position:relative; display:flex; flex-wrap:wrap; gap:8px; margin-top:38px; }.flow span { padding:10px 12px; border:1px solid rgba(11,24,48,.2); border-radius:11px; background:rgba(255,255,255,.29); font-weight:800; font-size:12px; }
+    .why { position:relative; margin-top:48px; max-width:490px; padding:17px 18px; border-left:4px solid var(--ink); background:rgba(255,255,255,.45); font-size:13px; line-height:1.55; }.why b { display:block; margin-bottom:5px; font-size:10px; letter-spacing:.1em; }
+    .phone-zone { position:relative; display:grid; place-items:center; padding:24px; background:#eef2f7; overflow:hidden; }.phone-zone::before { content:""; position:absolute; width:620px; height:620px; border-radius:50%; background:radial-gradient(circle,rgba(185,255,39,.65),rgba(86,201,255,.18) 38%,transparent 70%); }
+    .phone { position:relative; width:min(315px,88%); height:540px; overflow:hidden; border:9px solid #071426; border-radius:42px; color:#11203b; background:#fafcff; box-shadow:0 22px 34px rgba(7,20,38,.25); }.notch { position:absolute; z-index:5; top:7px; left:50%; width:92px; height:20px; transform:translateX(-50%); border-radius:15px; background:#071426; }
+    .screen { height:100%; padding:34px 16px 13px; background:linear-gradient(180deg,#fbfdff,#edf4ee); }.appbar { display:flex; align-items:center; justify-content:space-between; font-size:12px; font-weight:800; }.app-logo { font:15px "Archivo Black"; letter-spacing:-.075em; }.app-logo b { color:#54a800; }.tiny { display:grid; place-items:center; width:30px; height:30px; border:1px solid #d7e0eb; border-radius:10px; background:white; }
+    .screen h4 { margin:18px 0 4px; font-size:22px; letter-spacing:-.06em; }.sub { color:#5e6b7b; font-size:11px; font-weight:700; }.bottom-nav { position:absolute; right:0; bottom:0; left:0; display:flex; justify-content:space-around; padding:10px 10px 12px; border-top:1px solid #dce5ea; background:rgba(255,255,255,.96); font-size:16px; }.bottom-nav span:first-child { color:#4e9d00; }
+    .map { position:relative; height:180px; margin-top:15px; overflow:hidden; border-radius:20px; background:linear-gradient(126deg,#dff3d7 0 20%,#edf1ed 20% 31%,#c9e9f0 31% 34%,#dff3d7 34% 58%,#f0e6cc 58% 60%,#dff3d7 60%); }.road { position:absolute; height:12px; width:150%; top:42%; left:-22%; transform:rotate(-25deg); background:#fff; opacity:.9; }.road.two { top:68%; transform:rotate(17deg); }.pin { position:absolute; width:32px; height:32px; border:4px solid white; border-radius:50% 50% 50% 0; background:#5bb300; transform:rotate(-45deg); box-shadow:0 4px 10px rgba(9,50,12,.25); }.pin i { display:block; width:10px; height:10px; margin:7px; border-radius:50%; background:white; }.pin.a { top:26px; left:52px; }.pin.b { top:95px; right:55px; background:#ff6f61; }.pin.c { top:46px; right:95px; background:#2f90cc; }
+    .event { display:flex; gap:10px; align-items:center; margin-top:12px; padding:10px; border-radius:16px; background:#fff; box-shadow:0 6px 16px rgba(28,49,69,.08); }.event-pic { display:grid; place-items:center; width:48px; height:48px; border-radius:11px; background:#d8f5a0; font-size:24px; }.event b { display:block; font-size:12px; }.event small { display:block; margin-top:3px; color:#627083; font-size:10px; }.join { margin-left:auto; padding:7px 9px; border:0; border-radius:9px; background:var(--accent); font-size:10px; font-weight:900; }
+    .quest { margin-top:18px; padding:15px; border-radius:19px; color:#fff; background:#142c52; }.quest b { font-size:13px; }.progress { height:8px; margin-top:11px; overflow:hidden; border-radius:9px; background:rgba(255,255,255,.18); }.progress i { display:block; width:68%; height:100%; border-radius:inherit; background:#b9ff27; }.chip-row { display:flex; gap:6px; margin-top:12px; }.chip { padding:6px 8px; border-radius:999px; background:#eff6e6; color:#426c05; font-size:9px; font-weight:900; }
+    .calendar { display:grid; grid-template-columns:repeat(7,1fr); gap:4px; margin-top:15px; }.calendar span { display:grid; place-items:center; height:31px; border-radius:8px; color:#4e5d6d; font-size:10px; font-weight:800; }.calendar .active { color:#11203b; background:var(--accent); }.slot { display:flex; justify-content:space-between; align-items:center; margin-top:9px; padding:11px; border-left:3px solid #49aa00; border-radius:0 12px 12px 0; background:white; font-size:11px; font-weight:800; }
+    .avatars { display:flex; margin-top:16px; }.avatar { display:grid; place-items:center; width:37px; height:37px; margin-right:-8px; border:3px solid white; border-radius:50%; background:#ffd3c2; font-size:16px; }.avatar:nth-child(2){background:#c5eafa}.avatar:nth-child(3){background:#d6efaf}.avatar:nth-child(4){background:#d2d0ff}.lobby { margin-top:15px; padding:15px; border-radius:18px; color:white; background:#17284a; }.lobby h5 { margin:0; font-size:15px; }.lobby .join { display:block; width:100%; margin:14px 0 0; padding:10px; }
+    .qr { display:grid; place-items:center; width:132px; height:132px; margin:18px auto 8px; border:9px solid white; border-radius:13px; background:repeating-conic-gradient(#11203b 0 25%,#fff 0 50%) 0/17px 17px; box-shadow:0 7px 18px rgba(10,30,45,.15); }.qr::after { content:"✓"; display:grid; place-items:center; width:37px; height:37px; border-radius:50%; color:white; background:#4ea500; font-size:22px; }.scan { padding:13px; border-radius:15px; text-align:center; background:#dff9a6; font-weight:900; font-size:12px; }
+    .compare { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:15px; }.compare div { min-height:105px; padding:10px; border-radius:15px; font-size:10px; font-weight:800; }.before { color:#704b22; background:linear-gradient(140deg,#d9c8a8,#a58e68); }.after { color:#246000; background:linear-gradient(140deg,#cdeea4,#e9f8d5); }.stars { margin-top:13px; color:#ffb800; font-size:20px; letter-spacing:3px; }
+    .feed-card { margin-top:13px; padding:11px; border-radius:16px; background:white; box-shadow:0 5px 14px rgba(15,35,55,.08); }.feed-card p { margin:6px 0 0; font-size:10px; font-weight:700; }.feed-head { display:flex; align-items:center; gap:7px; font-size:10px; font-weight:900; }.feed-head i { width:25px; height:25px; border-radius:50%; background:#cceaa8; }
+    .swipe-stack { position:relative; height:255px; margin-top:15px; }.swipe-card { position:absolute; inset:0 5px 0; padding:17px; border-radius:22px; color:white; background:linear-gradient(160deg,#2b6348,#122848); box-shadow:0 12px 22px rgba(10,30,44,.2); }.swipe-card::after { content:""; position:absolute; inset:45px 0 0; opacity:.45; background:url('public/images/juegabarrio-hero-v1.png') center/cover; mix-blend-mode:screen; }.swipe-card b,.swipe-card p { position:relative; z-index:1; }.swipe-card b { display:block; margin-top:141px; font-size:17px; }.swipe-card p { font-size:11px; }.swipe-actions { position:absolute; z-index:3; right:0; bottom:-16px; left:0; display:flex; justify-content:center; gap:16px; }.swipe-actions button { width:42px; height:42px; border:0; border-radius:50%; color:#fff; background:#ff6f61; font-size:18px; }.swipe-actions button:last-child { color:#123813; background:#b9ff27; }
+    .passport { margin-top:17px; padding:17px; border-radius:20px; color:white; background:#102245; }.passport .score { font:38px "Archivo Black"; color:#b9ff27; }.passport-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:7px; margin-top:12px; }.passport-grid div { padding:9px 4px; border-radius:10px; text-align:center; background:rgba(255,255,255,.1); font-size:9px; }.passport-grid strong { display:block; margin-bottom:4px; font-size:17px; color:#b9ff27; }
+    .dashboard { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:15px; }.dash-stat { padding:11px; border-radius:13px; background:white; box-shadow:0 5px 13px rgba(10,30,44,.08); }.dash-stat span { display:block; color:#697586; font-size:9px; font-weight:800; }.dash-stat b { font:23px "Archivo Black"; letter-spacing:-.08em; }.bars { display:flex; align-items:end; gap:5px; height:92px; margin-top:10px; padding:10px; border-radius:15px; background:#16294b; }.bars i { flex:1; border-radius:5px 5px 1px 1px; background:#b9ff27; }.bars i:nth-child(2){height:70%}.bars i:nth-child(3){height:40%}.bars i:nth-child(4){height:92%}.bars i:nth-child(5){height:58%}
+    .options { margin-top:44px; }.options-header { display:flex; justify-content:space-between; align-items:baseline; gap:20px; margin-bottom:14px; }.options-header h2 { margin:0; font:31px "Archivo Black"; letter-spacing:-.06em; }.options-header p { margin:0; color:#647184; font-size:12px; }
+    .option-grid { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:10px; }.option { min-height:134px; padding:14px; overflow:hidden; border:1px solid var(--line); border-radius:17px; color:var(--ink); text-align:left; background:#fff; transition:transform .2s,box-shadow .2s,border .2s; }.option:hover,.option:focus-visible { transform:translateY(-3px); border-color:var(--ink); outline:none; box-shadow:0 12px 20px rgba(9,22,45,.11); }.option.active { border:2px solid var(--ink); box-shadow:inset 0 0 0 3px var(--accent); }.option .n { display:block; margin-bottom:13px; color:#647184; font:10px "DM Mono"; }.option .ico { display:block; margin-bottom:7px; font-size:26px; }.option b { display:block; font-size:13px; line-height:1.08; letter-spacing:-.03em; }.option small { display:block; margin-top:5px; color:#647184; font-size:10px; line-height:1.25; }
+    .note { display:flex; gap:13px; align-items:flex-start; margin-top:25px; padding:15px 17px; border-radius:16px; color:#23324a; background:#e2ebd4; font-size:12px; line-height:1.55; }.note b { color:#548300; white-space:nowrap; }
+    @media (max-width:900px) { .stage { grid-template-columns:1fr; }.story { min-height:440px; }.phone-zone { min-height:570px; }.option-grid { grid-template-columns:repeat(2,1fr); }.intro { display:block; }.intro p { margin-top:14px; } }
+    @media (max-width:460px) { .top { min-height:390px; }.brand span { display:none; }.stage { border-radius:20px; }.story { padding:26px; }.story h3 { font-size:42px; }.phone { width:290px; }.option-grid { grid-template-columns:1fr 1fr; gap:8px; }.option { min-height:126px; padding:11px; }.options-header { display:block; }.options-header p { margin-top:7px; } }
+    @media (prefers-reduced-motion:reduce) { *,*::before,*::after { scroll-behavior:auto!important; transition:none!important; } }
+  </style>
+</head>
+<body>
+  <header class="top">
+    <div class="brand"><strong>JUEGA<em>BARRIO</em></strong><span class="mono">EXPLORADOR UX · 10 RUTAS</span></div>
+    <div class="eyebrow">DISEÑO PARA LA ACCIÓN CÍVICA</div>
+    <h1>Diez formas de convertir el parque en una misión.</h1>
+    <p>No son diez colores distintos: cada opción modifica qué acción se vuelve más fácil primero para el vecino y qué señal recibe la municipalidad.</p>
+  </header>
+
+  <main>
+    <section class="intro" aria-label="Guía de comparación">
+      <h2>Elige una experiencia base.</h2>
+      <p>Haz clic en una ruta. La maqueta de la derecha cambia para mostrar su pantalla principal y el comportamiento que ayuda a activar.</p>
+    </section>
+
+    <section class="stage" id="stage" aria-live="polite">
+      <article class="story" id="story" style="--accent:#b9ff27">
+        <div class="number mono" id="number">RUTA 01 / 10</div>
+        <h3 id="title">Radar del barrio</h3>
+        <p id="description">La actividad aparece sobre el mapa. La decisión es espacial: “¿qué está pasando cerca de mí ahora?”</p>
+        <div class="flow" id="flow"></div>
+        <div class="why"><b class="mono">CAMBIO QUE ACTIVA</b><span id="why">Reduce la fricción de descubrir un parque activo y disponible.</span></div>
+      </article>
+      <aside class="phone-zone" aria-label="Maqueta interactiva de aplicación"><div class="phone"><div class="notch"></div><div class="screen" id="screen"></div><nav class="bottom-nav" aria-label="Navegación de ejemplo"><span>⌂</span><span>▣</span><span>◉</span><span>♙</span></nav></div></aside>
+    </section>
+
+    <section class="options" aria-label="Opciones UX">
+      <div class="options-header"><h2>10 rutas UX</h2><p>Selecciona una alternativa para verla en tamaño grande.</p></div>
+      <div class="option-grid" id="optionGrid"></div>
+      <div class="note"><b class="mono">RECOMENDACIÓN</b><span>Para el demo del hackatón, combinen <strong>Radar del barrio</strong> como inicio, <strong>Check-in misión</strong> como momento memorable y <strong>Control municipal</strong> como prueba de valor para la municipalidad.</span></div>
+    </section>
+  </main>
+
+  <script>
+    const options = [
+      { icon:'◎', name:'Radar del barrio', accent:'#b9ff27', desc:'La actividad aparece sobre el mapa. La decisión es espacial: “¿qué está pasando cerca de mí ahora?”', flow:['Mapa vivo','Filtro rápido','Unirme'], why:'Reduce la fricción de descubrir un parque activo y disponible.', screen:'map' },
+      { icon:'⚡', name:'Misión del día', accent:'#ffd04e', desc:'El inicio presenta una acción concreta para hoy: jugar, llegar a tiempo y completar una misión de cuidado.', flow:['Misión','Equipo','Recompensa'], why:'Convierte una intención cívica abstracta en una acción pequeña y alcanzable.', screen:'quest' },
+      { icon:'▦', name:'Agenda clara', accent:'#82d6ff', desc:'El horario es el protagonista. Cada espacio funciona como una agenda que elimina dudas y cruces.', flow:['Ver horario','Elegir cupo','Confirmar'], why:'Hace que respetar horarios sea más simple que coordinar por chats dispersos.', screen:'calendar' },
+      { icon:'◉', name:'Lobby de equipo', accent:'#d8c6ff', desc:'La experiencia comienza por la gente: quiénes van, cuántos cupos quedan y cuál es el acuerdo del grupo.', flow:['Conocer equipo','Tomar cupo','Jugar'], why:'Aumenta confianza antes de asistir y construye convivencia desde el inicio.', screen:'lobby' },
+      { icon:'▣', name:'Check-in misión', accent:'#9ff0c3', desc:'Llegar se siente como desbloquear un nivel: QR, cercanía al lugar y una confirmación inmediata.', flow:['Llegar','Escanear QR','Confirmar'], why:'Vuelve visible y satisfactoria la puntualidad, sin castigar públicamente.', screen:'qr' },
+      { icon:'✦', name:'Cierre que cuenta', accent:'#ffbaa9', desc:'El gran momento no es solo jugar: la actividad se completa cuando el espacio queda listo para el siguiente grupo.', flow:['Antes','Actividad','Después'], why:'Integra el cuidado del espacio en el ritual de cierre, no como una tarea extra.', screen:'care' },
+      { icon:'☼', name:'Pulso vecinal', accent:'#ffdc8f', desc:'Una bitácora local muestra pequeñas acciones reales de otras personas, sin convertirla en una red social ruidosa.', flow:['Ver acciones','Sumarse','Agradecer'], why:'Hace contagioso el comportamiento positivo al mostrar que otros ya participan.', screen:'feed' },
+      { icon:'↔', name:'Match de actividad', accent:'#a9e2d4', desc:'Descubrir actividades funciona como elegir una propuesta que encaja con tu tiempo, nivel e interés.', flow:['Explorar','Elegir','Unirme'], why:'Ofrece una decisión rápida y personal sin perder la dimensión comunitaria.', screen:'swipe' },
+      { icon:'★', name:'Pasaporte cívico', accent:'#f0befd', desc:'El perfil privado funciona como una colección de participaciones y logros por aportar al barrio.', flow:['Participar','Aportar','Desbloquear'], why:'Refuerza repetición y orgullo comunitario sin usar rankings públicos.', screen:'passport' },
+      { icon:'▤', name:'Control municipal', accent:'#c6daff', desc:'El gestor ve ocupación, actividades y alertas de un vistazo; la agenda vecinal se refleja en decisiones reales.', flow:['Programar','Observar uso','Atender'], why:'Da a la municipalidad una razón operativa para habilitar y sostener el sistema.', screen:'dashboard' }
+    ];
+
+    function appTop(label='Hoy en tu barrio') { return `<div class="appbar"><div class="app-logo">JUEGA<b>BARRIO</b></div><div class="tiny" aria-label="Notificaciones">⌁</div></div><h4>${label}</h4>`; }
+    function screen(type) {
+      const base = (content) => `${content}`;
+      if (type === 'map') return base(`${appTop('Encuentra tu juego')}<div class="sub">Los Olivos · cerca de ti</div><div class="map"><i class="road"></i><i class="road two"></i><span class="pin a"><i></i></span><span class="pin b"><i></i></span><span class="pin c"><i></i></span></div><div class="event"><div class="event-pic">🏐</div><div><b>Vóley en el parque</b><small>Hoy · 18:00 · 3 cupos</small></div><button class="join">UNIRME</button></div>`);
+      if (type === 'quest') return base(`${appTop('Tu misión de hoy')}<div class="sub">Haz que tu parque cobre vida</div><div class="quest"><b>⚡ Completa una partida responsable</b><div class="progress"><i></i></div><small>2 de 3 pasos desbloqueados</small></div><div class="event"><div class="event-pic">⚽</div><div><b>Fútbol 7 · Los Olivos</b><small>Hoy · 17:30</small></div><button class="join">IR</button></div><div class="chip-row"><span class="chip">✓ puntual</span><span class="chip">♻ cuidar</span></div>`);
+      if (type === 'calendar') return base(`${appTop('Agenda del parque')}<div class="sub">Elige tu hora disponible</div><div class="calendar">${['L','M','M','J','V','S','D','3','4','5','6','7','8','9','10','11','12','13','14','15'].map((x,i)=>`<span class="${i===12?'active':''}">${x}</span>`).join('')}</div><div class="slot"><span>18:00 · Vóley</span><span>+ 3 cupos</span></div><div class="slot"><span>19:30 · Fútbol 7</span><span>+ 5 cupos</span></div>`);
+      if (type === 'lobby') return base(`${appTop('Tu equipo')}<div class="sub">Pachanga de vóley · hoy 18:00</div><div class="lobby"><h5>Ya somos 8 de 12</h5><div class="avatars"><span class="avatar">😎</span><span class="avatar">👩</span><span class="avatar">🧑</span><span class="avatar">👨</span></div><small>Carla, Mateo y 5 más ya confirmaron</small><button class="join">TOMAR MI CUPO</button></div><div class="event"><div class="event-pic">🤝</div><div><b>Acuerdo del grupo</b><small>Llegamos a tiempo y dejamos limpio</small></div></div>`);
+      if (type === 'qr') return base(`${appTop('Llegaste a tiempo')}<div class="sub">Parque Los Olivos · 18:00</div><div class="qr"></div><div class="scan">ESCANEA EL QR DEL ESPACIO</div><div class="event"><div class="event-pic">📍</div><div><b>Estás cerca del parque</b><small>Confirma tu llegada para jugar</small></div></div>`);
+      if (type === 'care') return base(`${appTop('Cierre de partida')}<div class="sub">Tu actividad termina cuando el lugar queda listo</div><div class="compare"><div class="before">ANTES<br><br>📷 Registra el estado inicial</div><div class="after">DESPUÉS<br><br>✓ Confirma el espacio cuidado</div></div><div class="stars">★★★★★</div><div class="sub">Tu equipo suma una contribución al barrio</div>`);
+      if (type === 'feed') return base(`${appTop('El barrio se mueve')}<div class="sub">Acciones reales cerca de ti</div><div class="feed-card"><div class="feed-head"><i></i> Sofía · Parque Naranjal</div><p>“Cerramos nuestra partida y dejamos la losa lista.” ♻</p></div><div class="feed-card"><div class="feed-head"><i></i> Diego · Los Olivos</div><p>“Se abrió una actividad de ajedrez para este sábado.” ♟</p></div><div class="event"><div class="event-pic">✋</div><div><b>¿Te sumas hoy?</b><small>Hay 4 actividades cerca</small></div></div>`);
+      if (type === 'swipe') return base(`${appTop('Elige tu actividad')}<div class="sub">Desliza para encontrar tu plan</div><div class="swipe-stack"><div class="swipe-card"><b>Vóley al atardecer</b><p>Parque Los Olivos · 18:00<br>8 de 12 cupos</p></div><div class="swipe-actions"><button aria-label="Descartar">×</button><button aria-label="Unirme">✓</button></div></div>`);
+      if (type === 'passport') return base(`${appTop('Tu pasaporte')}<div class="sub">Lo que aportas también cuenta</div><div class="passport"><div class="score">420 XP</div><small>Nivel 4 · Vecino que activa</small><div class="passport-grid"><div><strong>8</strong>partidas</div><div><strong>93%</strong>puntual</div><div><strong>5</strong>cuidados</div></div></div><div class="event"><div class="event-pic">🏅</div><div><b>Nueva insignia cerca</b><small>Completa una actividad esta semana</small></div></div>`);
+      return base(`${appTop('Panel municipal')}<div class="sub">Resumen · Parque Los Olivos</div><div class="dashboard"><div class="dash-stat"><span>Uso hoy</span><b>78%</b></div><div class="dash-stat"><span>Activas</span><b>06</b></div></div><div class="bars"><i style="height:32%"></i><i></i><i></i><i></i><i></i></div><div class="event"><div class="event-pic">✓</div><div><b>3 cierres responsables</b><small>1 incidencia por revisar</small></div></div>`);
+    }
+    function render(index) {
+      const item = options[index]; document.getElementById('number').textContent = `RUTA ${String(index+1).padStart(2,'0')} / 10`;
+      document.getElementById('title').textContent = item.name; document.getElementById('description').textContent = item.desc;
+      document.getElementById('why').textContent = item.why; document.getElementById('flow').innerHTML = item.flow.map(step=>`<span>${step}</span>`).join('');
+      document.getElementById('story').style.setProperty('--accent',item.accent); document.getElementById('screen').innerHTML = screen(item.screen);
+      document.querySelectorAll('.option').forEach((button,i)=>{ button.classList.toggle('active',i===index); button.setAttribute('aria-pressed',i===index); });
+    }
+    document.getElementById('optionGrid').innerHTML = options.map((item,index)=>`<button class="option ${index===0?'active':''}" aria-pressed="${index===0}" data-index="${index}"><span class="n">${String(index+1).padStart(2,'0')}</span><span class="ico">${item.icon}</span><b>${item.name}</b><small>${item.flow.join(' · ')}</small></button>`).join('');
+    document.getElementById('optionGrid').addEventListener('click',(event)=>{ const option=event.target.closest('.option'); if(!option)return; render(Number(option.dataset.index)); document.getElementById('stage').scrollIntoView({behavior:'smooth',block:'center'}); });
+    render(0);
+  </script>
+</body>
+</html>

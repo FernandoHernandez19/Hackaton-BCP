@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>JuegaBarrio</title>
+<meta name="theme-color" content="#1f7a4d">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<style>
+:root{--bg:#f4f7f3;--ink:#17261e;--muted:#5a6a61;--g:#1f7a4d;--gd:#14573a;--card:#fff;--line:#dce5de;--warn:#9a5b00;--bad:#b3261e}
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;background:var(--bg);color:var(--ink)}
+a{color:var(--gd)}
+header{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;background:var(--g)}
+header a{color:#fff;text-decoration:none;font-weight:700}
+header nav{display:flex;gap:16px}
+.banner{background:#fff3cf;color:var(--warn);text-align:center;font-size:13px;padding:4px 12px}
+main{max-width:980px;margin:0 auto;padding:16px}
+h1{font-size:24px;margin:8px 0}h2{font-size:18px;margin:20px 0 8px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:12px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.btn{display:inline-block;background:var(--g);color:#fff;border:0;border-radius:10px;padding:12px 16px;font-size:16px;font-weight:600;cursor:pointer;text-decoration:none}
+.btn:hover{background:var(--gd)}.btn.sec{background:#fff;color:var(--gd);border:1px solid var(--g)}.btn.small{padding:8px 12px;font-size:14px}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.muted{color:var(--muted);font-size:14px}
+.badge{display:inline-block;background:#e4f3ea;color:var(--gd);padding:2px 10px;border-radius:999px;font-size:13px;font-weight:600}
+.badge.warn{background:#fff3cf;color:var(--warn)}.badge.bad{background:#fde7e5;color:var(--bad)}
+.grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+.kpi{font-size:38px;font-weight:800;color:var(--gd);line-height:1.1}
+#map{height:320px;border-radius:12px;border:1px solid var(--line);margin-bottom:12px}
+input[type=text],input[type=datetime-local],input[type=number],select,textarea{width:100%;padding:10px;border:1px solid var(--line);border-radius:8px;font-size:16px;font-family:inherit;background:#fff}
+label{display:block;font-weight:600;margin:10px 0 4px}
+.check{display:flex;gap:12px;align-items:center;padding:14px;border:2px solid var(--line);border-radius:12px;margin:8px 0;font-size:17px;cursor:pointer;background:#fff}
+.check input{width:26px;height:26px;accent-color:var(--g)}
+.check.on{border-color:var(--g);background:#eef8f2}
+.photos{display:flex;gap:10px;flex-wrap:wrap}.photos img{width:140px;height:100px;object-fit:cover;border-radius:8px;border:1px solid var(--line)}
+.steps{display:flex;gap:6px;margin:10px 0}.steps span{flex:1;text-align:center;padding:6px 2px;border-radius:8px;background:#e9eee9;font-size:13px;font-weight:600;color:var(--muted)}
+.steps span.on{background:var(--g);color:#fff}.steps span.done{background:#cfe9d9;color:var(--gd)}
+.toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:#17261e;color:#fff;padding:12px 18px;border-radius:10px;z-index:9999;max-width:90vw}
+.toast.err{background:var(--bad)}
+ul.rules{margin:6px 0 0;padding-left:20px}
+</style>
+</head>
+<body>
+<header><a href="#/">JuegaBarrio</a><nav><a href="#/">Vecino</a><a href="#/muni">Municipalidad</a></nav></header>
+<div class="banner">Demo con datos simulados — ningún dato es real</div>
+<main id="app">Cargando…</main>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+const $app = document.getElementById("app");
+let S = null; // estado del servidor
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const getName = () => { try { return localStorage.getItem("jb_name") || ""; } catch { return ""; } };
+const setName = (n) => { try { localStorage.setItem("jb_name", n); } catch {} };
+const fmt = (iso) => new Date(iso).toLocaleString("es-PE", { weekday: "short", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
+const space = (id) => S.spaces.find((s) => s.id === id);
+const STATUS = { programada: ["Programada", ""], en_curso: ["En curso", "warn"], completada: ["Completada", ""] };
+
+async function api(path, body) {
+  const r = await fetch("/api/" + path, body === undefined ? {} : { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+  const j = await r.json();
+  if (!r.ok) throw new Error(j.error || "Error");
+  return j;
+}
+async function refresh() { S = await api("state"); }
+function toast(msg, err) { const t = document.createElement("div"); t.className = "toast" + (err ? " err" : ""); t.textContent = msg; document.body.appendChild(t); setTimeout(() => t.remove(), 3200); }
+async function act(fn) { try { await fn(); } catch (e) { toast(e.message, true); } }
+
+// Foto -> JPEG reducido (data URL)
+function readPhoto(file) {
+  return new Promise((resolve) => {
+    if (!file) return resolve(undefined);
+    const img = new Image(), fr = new FileReader();
+    fr.onload = () => { img.onload = () => {
+      const k = Math.min(1, 640 / Math.max(img.width, img.height)), c = document.createElement("canvas");
+      c.width = img.width * k; c.height = img.height * k; c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+      resolve(c.toDataURL("image/jpeg", 0.6)); }; img.onerror = () => resolve(undefined); img.src = fr.result; };
+    fr.onerror = () => resolve(undefined); fr.readAsDataURL(file);
+  });
+}
+
+// ---------- Vistas ----------
+function actCard(a) {
+  const sp = space(a.spaceId), [label, cls] = STATUS[a.status];
+  return `<div class="card"><div class="row"><strong>${esc(a.title)}</strong><span class="badge ${cls}">${label}</span></div>
+    <div class="muted">${esc(sp?.name)} · ${fmt(a.startsAt)} · ${a.participants.length}/${a.capacity} personas</div>
+    <p><a class="btn small" href="#/actividad/${a.id}">Ver actividad</a></p></div>`;
+}
+
+function viewHome() {
+  const upcoming = S.activities.filter((a) => a.status !== "completada");
+  $app.innerHTML = `<h1>Deja la losa mejor de como la encontraste</h1>
+    <p class="muted">Encuentra una actividad cerca, súmate y comprométete a cuidar el espacio.</p>
+    <div id="map"></div>
+    <h2>Espacios habilitados</h2>
+    <div class="grid">${S.spaces.map((s) => `<div class="card"><strong>${esc(s.name)}</strong>
+      <div class="muted">${esc(s.schedule)}</div>
+      <p><span class="badge">Racha de cuidado: ${s.careStreak}</span></p>
+      <a class="btn small sec" href="#/espacio/${s.id}">Ver espacio</a></div>`).join("")}</div>
+    <h2>Próximas actividades</h2>${upcoming.map(actCard).join("") || '<p class="muted">No hay actividades programadas.</p>'}`;
+  if (window.L) {
+    const map = L.map("map").setView([-11.9925, -77.0705], 14);
+    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", { attribution: "© OpenStreetMap" }).addTo(map);
+    S.spaces.forEach((s) => L.marker([s.lat, s.lng]).addTo(map).bindPopup(`<b>${esc(s.name)}</b><br><a href="#/espacio/${s.id}">Ver espacio</a>`));
+  } else { document.getElementById("map").outerHTML = '<p class="muted">El mapa necesita internet. Usa la lista de espacios.</p>'; }
+}
+
+function viewSpace(id) {
+  const s = space(id); if (!s) return notFound();
+  const acts = S.activities.filter((a) => a.spaceId === id && a.status !== "completada");
+  const qrUrl = location.origin + "/#/qr/" + s.qrToken;
+  const base = new Date(Date.now() + 3600e3); base.setMinutes(0, 0, 0);
+  const local = new Date(base - base.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+  $app.innerHTML = `<p><a href="#/">← Volver</a></p><h1>${esc(s.name)}</h1>
+    <div class="card"><div class="muted">${esc(s.address)}</div><div>${esc(s.schedule)} · aforo ${s.capacity}</div>
+      <p><span class="badge">Racha de cuidado: ${s.careStreak} ${s.careStreak === 1 ? "uso" : "usos"} seguidos</span></p>
+      <strong>Reglas del espacio</strong><ul class="rules">${s.rules.map((r) => `<li>${esc(r)}</li>`).join("")}</ul></div>
+    <div class="card"><strong>Cartel QR de la losa</strong><div class="muted">Se pega en la losa. Al escanearlo, el vecino hace su check-in.</div>
+      <div id="qr" style="margin:10px 0"></div><a class="btn small sec" href="#/qr/${s.qrToken}">Simular escaneo del QR</a></div>
+    <h2>Actividades</h2>${acts.map(actCard).join("") || '<p class="muted">Aún no hay actividades. Crea la primera.</p>'}
+    <h2>Crear una actividad</h2>
+    <div class="card"><label>Nombre</label><input type="text" id="t" placeholder="Ej. Vóley de la tarde">
+      <label>Deporte o categoría</label><input type="text" id="c" placeholder="Vóley">
+      <label>Fecha y hora</label><input type="datetime-local" id="d" value="${local}">
+      <label>Cupos</label><input type="number" id="n" value="10" min="2" max="${s.capacity}">
+      <p class="muted">Al crearla aceptas el compromiso de dejar el espacio limpio.</p>
+      <button class="btn" id="go">Crear y unirme</button></div>`;
+  if (window.QRCode) new QRCode(document.getElementById("qr"), { text: qrUrl, width: 140, height: 140 });
+  else document.getElementById("qr").textContent = qrUrl;
+  document.getElementById("go").onclick = () => act(async () => {
+    const name = getName() || prompt("¿Cómo te llamas?")?.trim(); if (!name) return; setName(name);
+    const a = await api("activities", { spaceId: id, title: document.getElementById("t").value, category: document.getElementById("c").value, startsAt: new Date(document.getElementById("d").value).toISOString(), capacity: Number(document.getElementById("n").value), name });
+    location.hash = "#/actividad/" + a.id;
+  });
+}
+
+function stepper(a, me) {
+  const joined = !!me, arrived = !!me?.checkedInAt, done = a.status === "completada";
+  const cls = (i, ok) => (ok ? "done" : i ? "on" : "");
+  return `<div class="steps"><span class="${joined ? "done" : "on"}">1 Unirse</span><span class="${arrived ? "done" : joined ? "on" : ""}">2 Check-in</span><span class="${done ? "done" : arrived ? "on" : ""}">3 Cierre</span></div>`;
+}
+
+function viewActivity(id) {
+  const a = S.activities.find((x) => x.id === id); if (!a) return notFound();
+  const sp = space(a.spaceId), name = getName(), me = a.participants.find((p) => p.name === name);
+  let action = "";
+  if (a.status === "completada") {
+    action = `<div class="card"><span class="badge ${a.closure?.cleanSpace ? "" : "bad"}">${a.closure?.cleanSpace ? "Cerrada: espacio en buen estado" : "Cerrada con observaciones"}</span>
+      <div class="photos" style="margin-top:10px">${a.beforePhoto ? `<div><div class="muted">Antes</div><img src="${a.beforePhoto}"></div>` : ""}${a.afterPhoto ? `<div><div class="muted">Después</div><img src="${a.afterPhoto}"></div>` : ""}</div></div>`;
+  } else if (!me) {
+    action = `<div class="card"><strong>Únete a la actividad</strong>
+      <label>Tu nombre</label><input type="text" id="nm" value="${esc(name)}" placeholder="Tu nombre">
+      <label class="check" id="cm"><input type="checkbox" id="cmt"> Me comprometo a dejar ${esc(sp.type === "losa" ? "la losa" : "el parque")} limpio</label>
+      <button class="btn" id="join">Unirme</button></div>`;
+  } else if (!me.checkedInAt) {
+    action = `<div class="card"><strong>Cuando llegues, escanea el QR del espacio</strong><p class="muted">En la demo lo simulamos.</p>
+      <a class="btn" href="#/qr/${sp.qrToken}">Hacer check-in (simular QR)</a></div>`;
+  } else {
+    action = `<div class="card"><strong>Al terminar, haz el cierre (30 segundos)</strong><p><a class="btn" href="#/cierre/${a.id}">Cerrar actividad</a></p></div>`;
+  }
+  $app.innerHTML = `<p><a href="#/espacio/${sp.id}">← ${esc(sp.name)}</a></p><h1>${esc(a.title)}</h1>
+    <div class="muted">${fmt(a.startsAt)} · ${a.participants.length}/${a.capacity} personas · ${esc(a.category)}</div>${stepper(a, me)}${action}
+    <div class="card"><strong>Participantes</strong><ul class="rules">${a.participants.map((p) => `<li>${esc(p.name)} ${p.checkedInAt ? '<span class="badge">llegó</span>' : ""}</li>`).join("") || "<li>Aún nadie</li>"}</ul></div>
+    <div class="card"><strong>Reglas del espacio</strong><ul class="rules">${sp.rules.map((r) => `<li>${esc(r)}</li>`).join("")}</ul></div>`;
+  const join = document.getElementById("join");
+  if (join) {
+    document.getElementById("cmt").onchange = (e) => document.getElementById("cm").classList.toggle("on", e.target.checked);
+    join.onclick = () => act(async () => {
+      const n = document.getElementById("nm").value.trim(); if (!n) throw new Error("Escribe tu nombre");
+      setName(n); await api(`activities/${a.id}/join`, { name: n, committed: document.getElementById("cmt").checked });
+      toast("¡Listo! Te uniste a la actividad"); await refresh(); viewActivity(id);
+    });
+  }
+}
+
+function viewQr(token) {
+  const sp = S.spaces.find((s) => s.qrToken === token); if (!sp) return notFound();
+  const name = getName();
+  const mine = S.activities.filter((a) => a.spaceId === sp.id && a.status !== "completada" && a.participants.some((p) => p.name === name));
+  const a = mine[0];
+  $app.innerHTML = `<h1>Check-in en ${esc(sp.name)}</h1><div class="card"><strong>Reglas del espacio</strong><ul class="rules">${sp.rules.map((r) => `<li>${esc(r)}</li>`).join("")}</ul></div>
+    ${a ? `<div class="card"><strong>${esc(a.title)}</strong><div class="muted">${fmt(a.startsAt)}</div>
+      <p class="muted">Ubicación: validación de cercanía simulada en la demo.</p>
+      <label>Foto de cómo está el espacio (antes)</label><input type="file" id="ph" accept="image/*" capture="environment">
+      <p><button class="btn" id="ci">Confirmar llegada</button></p></div>`
+      : `<div class="card"><p>${name ? "No estás unido a ninguna actividad en este espacio." : "Primero únete a una actividad."}</p><a class="btn sec" href="#/espacio/${sp.id}">Ver actividades</a></div>`}`;
+  const ci = document.getElementById("ci");
+  if (ci) ci.onclick = () => act(async () => {
+    ci.disabled = true; const photo = await readPhoto(document.getElementById("ph").files[0]);
+    await api(`activities/${a.id}/checkin`, { name, beforePhoto: photo }); toast("Llegada registrada"); await refresh(); location.hash = "#/actividad/" + a.id;
+  });
+}
+
+function viewClose(id) {
+  const a = S.activities.find((x) => x.id === id); if (!a) return notFound();
+  const name = getName(), sp = space(a.spaceId);
+  const items = [["basura", "Recogimos la basura"], ["equipos", "Guardamos los equipos"], ["areaOrdenada", "El espacio quedó ordenado"]];
+  $app.innerHTML = `<p><a href="#/actividad/${a.id}">← Volver</a></p><h1>Cierre responsable</h1><p class="muted">${esc(a.title)} · ${esc(sp.name)}</p>
+    ${items.map(([k, t]) => `<label class="check" data-k="${k}"><input type="checkbox" id="ck-${k}"> ${t}</label>`).join("")}
+    <div class="card"><label>Foto de cómo quedó el espacio (después)</label><input type="file" id="ph" accept="image/*" capture="environment">
+      <label class="check" id="incl" style="margin-top:12px"><input type="checkbox" id="inc"> Hay un problema que reportar</label>
+      <div id="incbox" style="display:none"><label>Tipo</label><select id="ict"><option>Basura</option><option>Daño</option><option>Seguridad</option><option>Otro</option></select>
+        <label>Descripción</label><textarea id="itx" rows="2" placeholder="¿Qué pasó?"></textarea></div></div>
+    <button class="btn" id="fin">Confirmar cierre</button>`;
+  document.querySelectorAll(".check[data-k] input").forEach((i) => (i.onchange = () => i.parentElement.classList.toggle("on", i.checked)));
+  document.getElementById("inc").onchange = (e) => { document.getElementById("incbox").style.display = e.target.checked ? "block" : "none"; document.getElementById("incl").classList.toggle("on", e.target.checked); };
+  document.getElementById("fin").onclick = () => act(async () => {
+    const btn = document.getElementById("fin"); btn.disabled = true;
+    const photo = await readPhoto(document.getElementById("ph").files[0]);
+    const checklist = Object.fromEntries(items.map(([k]) => [k, document.getElementById("ck-" + k).checked]));
+    const incident = document.getElementById("inc").checked;
+    try {
+      await api(`activities/${a.id}/close`, { name, checklist, afterPhoto: photo, incident, incidentCategory: document.getElementById("ict").value, incidentText: document.getElementById("itx").value });
+    } catch (e) { btn.disabled = false; throw e; }
+    toast("Cierre registrado. ¡Gracias por cuidar el espacio!"); await refresh(); location.hash = "#/actividad/" + a.id;
+  });
+}
+
+function viewMuni() {
+  const i = S.indicator;
+  $app.innerHTML = `<h1>Panel municipal</h1><p class="muted">Uso responsable de los espacios (datos simulados).</p>
+    <div class="grid">
+      <div class="card"><div class="muted">Actividades cerradas con el espacio en buen estado</div><div class="kpi">${i.pct === null ? "—" : i.pct + "%"}</div><div class="muted">${i.clean} de ${i.completed} completadas</div></div>
+      <div class="card"><div class="muted">Llegadas con check-in</div><div class="kpi">${i.arrivals}</div></div>
+      <div class="card"><div class="muted">Incidencias abiertas</div><div class="kpi">${i.incidentsOpen}</div><div class="muted">${i.incidentsResolved} resueltas</div></div>
+      <div class="card"><div class="muted">Actividades completadas</div><div class="kpi">${i.completed}</div></div></div>
+    <h2>Racha de cuidado por espacio</h2>
+    ${S.spaces.map((s) => `<div class="card row"><strong>${esc(s.name)}</strong><span class="badge">${s.careStreak} usos seguidos en buen estado</span></div>`).join("")}
+    <h2>Incidencias</h2>
+    ${S.incidents.map((n) => `<div class="card"><div class="row"><span class="badge ${n.status === "abierta" ? "warn" : ""}">${n.status}</span><strong>${esc(n.category)}</strong><span class="muted">${esc(space(n.spaceId)?.name)} · ${fmt(n.createdAt)}</span></div>
+      <p>${esc(n.description)}</p>${n.status === "abierta" ? `<button class="btn small" data-res="${n.id}">Marcar como resuelta</button>` : ""}</div>`).join("") || '<p class="muted">Sin incidencias.</p>'}
+    <h2>Demo</h2><button class="btn small sec" id="reset">Reiniciar datos de la demo</button>`;
+  document.querySelectorAll("[data-res]").forEach((b) => (b.onclick = () => act(async () => { await api(`incidents/${b.dataset.res}/resolve`, {}); await refresh(); viewMuni(); })));
+  document.getElementById("reset").onclick = () => act(async () => { if (!confirm("¿Reiniciar los datos de la demo?")) return; await api("reset", {}); await refresh(); viewMuni(); toast("Demo reiniciada"); });
+}
+
+function notFound() { $app.innerHTML = '<h1>No encontrado</h1><a href="#/">Volver al inicio</a>'; }
+
+async function router() {
+  try { await refresh(); } catch { $app.innerHTML = "<p>No se pudo conectar con el servidor.</p>"; return; }
+  const [, p, id] = location.hash.split("/");
+  window.scrollTo(0, 0);
+  ({ espacio: viewSpace, actividad: viewActivity, qr: viewQr, cierre: viewClose, muni: viewMuni }[p] || viewHome)(id);
+}
+addEventListener("hashchange", router);
+router();
+</script>
+</body>
+</html>

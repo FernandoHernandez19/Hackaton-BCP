@@ -41,3 +41,6 @@ plan_de_aplicacion.md
 propuesta_mejorada.md
 referencias-visuales.html
 wireframes.html
+
+# JuegaBarrio: base de datos local de la demo
+data/db.json
