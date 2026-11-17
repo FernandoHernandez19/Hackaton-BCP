@@ -25,6 +25,8 @@ svg.i.s{width:20px;height:20px}
 .top .in{max-width:760px;margin:0 auto;padding:14px 18px 12px;display:flex;align-items:center;justify-content:space-between;position:relative}
 .top:after{content:"";position:absolute;right:-30px;top:-40px;width:130px;height:110px;background:var(--y);border-radius:0 0 0 100%;opacity:.95}
 .brand{font-size:34px;font-weight:900;color:var(--y);line-height:1;text-decoration:none;letter-spacing:-.5px}
+.brand-logo{display:block;width:230px;max-width:56vw;height:auto}
+.top .brand{display:inline-block;background:var(--bg);border-radius:16px;padding:6px 14px 6px 10px;position:relative;z-index:2}
 .tag{font-size:13px;font-weight:700;color:#fff;margin-top:2px}
 .top .acts{display:flex;gap:18px;position:relative;z-index:2;color:#fff}
 .top .acts a{position:relative;display:flex;min-width:44px;min-height:44px;align-items:center;justify-content:center;color:#fff;text-decoration:none}
@@ -142,6 +144,37 @@ textarea{width:100%;border:2px solid var(--line);border-radius:16px;padding:12px
 .strip.g{background:var(--gsoft);color:#0f5a27}.strip.t{background:var(--tsoft);color:#0a4d57}
 .strip .ck{width:46px;height:46px;border-radius:50%;background:var(--g);display:flex;align-items:center;justify-content:center;flex:none}.strip .ck svg{stroke:#fff;stroke-width:2.6}
 .strip .ck.b{background:transparent;border:2px solid var(--t);border-radius:12px}.strip .ck.b svg{stroke:var(--t);stroke-width:1.9}
+
+/* ---------- versión web (escritorio) ---------- */
+.dnav,.foot{display:none}
+@media (min-width:1024px){
+body{padding-bottom:0}
+.nav{display:none}
+.top .in{max-width:1180px;padding:12px 32px}
+.top:after{width:150px}
+.dnav{display:flex;gap:6px;position:relative;z-index:2}
+.dnav a{display:flex;align-items:center;gap:8px;color:#fff;text-decoration:none;font-weight:800;font-size:17px;padding:10px 16px;border-radius:14px;transition:background .15s}
+.dnav a:hover{background:rgba(255,255,255,.12)}
+.dnav a.on{background:var(--y);color:var(--ink)}
+.dnav svg{width:20px;height:20px}
+main{max-width:1180px;padding:28px 32px 24px}
+h1{font-size:38px}
+.foot{display:block;max-width:1180px;margin:8px auto 0;padding:20px 32px 32px;color:var(--muted);font-size:14px;border-top:2px solid var(--line)}
+.foot a{color:var(--ink2);font-weight:800}
+.explore{display:grid;grid-template-columns:minmax(380px,460px) minmax(0,1fr);grid-template-areas:"head map" "sel map";gap:0 32px;align-items:start}
+.ex-head{grid-area:head}
+.explore #map{grid-area:map;position:sticky;top:92px;height:calc(100vh - 124px);min-height:520px;margin-bottom:0}
+.explore #sel{grid-area:sel}
+.space-grid{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);gap:0 28px;align-items:start}
+.hero{height:340px}
+.cols2,#list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.cols2>.card,#list>.card{margin-bottom:0}
+main[data-view="muni"] .grid2{grid-template-columns:repeat(4,minmax(0,1fr))}
+main[data-view="en-vivo"] .grid2{grid-template-columns:repeat(4,minmax(0,1fr))}
+main[data-view="crear"]>*,main[data-view="proponer"]>*,main[data-view="qr"]>*,main[data-view="cierre"]>*,main[data-view="actividad"]>*,main[data-view="perfil"]>*,main[data-view="mis-espacios"]>*{max-width:720px;margin-left:auto;margin-right:auto}
+main[data-view="actividades"]>h1,main[data-view="actividades"]>.sub,main[data-view="actividades"]>.seg{max-width:760px}
+.toast{bottom:32px}
+}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
 @media (min-width:640px){.thumb{width:140px;height:140px}.hero{height:280px}}
 </style>
@@ -179,10 +212,12 @@ textarea{width:100%;border:2px solid var(--line);border-radius:16px;padding:12px
 </defs></svg>
 
 <header class="top"><div class="in">
-  <div><a class="brand" href="#/">Pukllay</a><div class="tag">Juega. Cuida. Deja mejor.</div></div>
+  <div><a class="brand" href="#/" aria-label="Pukllay, inicio"><img class="brand-logo" src="/images/pukllay-logo.svg" alt="Pukllay — Juega. Cuida. Deja mejor."></a></div>
+  <nav class="dnav" id="dnav" aria-label="Principal"></nav>
   <div class="acts"><a href="#/en-vivo" aria-label="Ciudad en vivo"><svg class="i"><use href="#i-bell"/></svg><span class="dot"></span></a><a href="#/perfil" aria-label="Perfil"><svg class="i"><use href="#i-user"/></svg></a></div>
 </div></header>
 <main id="app">Cargando…</main>
+<footer class="foot">Pukllay · Hackatón UPN × BCP 2026 · Demo con datos simulados · <a href="#/muni">Panel municipal</a></footer>
 <nav class="nav" aria-label="Principal"><div class="in" id="nav"></div></nav>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -193,9 +228,9 @@ let S = null;           // estado del servidor
 let POLL = null;        // refresco automático en pantallas "en vivo"
 const Q = { q: "", act: "", dist: "", hour: "" }; // filtros de Explorar
 const TZ = "America/Lima", CENTER = [-11.9925, -77.0705];
-const CATS = ["Fútbol", "Vóley", "Básquet", "Baile", "Juegos tradicionales", "Bienestar", "Otro"];
-const TITLES = { "Fútbol": "Fútbol amistoso", "Vóley": "Vóley vecinal", "Básquet": "Básquet 3x3", "Baile": "Baile comunitario", "Juegos tradicionales": "Juegos tradicionales", "Bienestar": "Bienestar al aire libre", "Otro": "Actividad vecinal" };
-const ICON = (c) => ({ "Fútbol": "ball", "Vóley": "volley", "Básquet": "ball", "Baile": "users", "Juegos tradicionales": "play", "Bienestar": "heart" }[c] || "ball");
+const CATS = ["Fútbol", "Vóley", "Básquet", "Baile", "Gincana", "Juegos tradicionales", "Bienestar", "Otro"];
+const TITLES = { "Fútbol": "Fútbol amistoso", "Vóley": "Vóley vecinal", "Básquet": "Básquet 3x3", "Baile": "Baile comunitario", "Gincana": "Gincana del barrio", "Juegos tradicionales": "Juegos tradicionales", "Bienestar": "Bienestar al aire libre", "Otro": "Actividad vecinal" };
+const ICON = (c) => ({ "Fútbol": "ball", "Vóley": "volley", "Básquet": "ball", "Baile": "users", "Gincana": "play", "Juegos tradicionales": "play", "Bienestar": "heart" }[c] || "ball");
 const COLORS = ["#e4572e", "#17b8c9", "#7c5cff", "#1e9e4a", "#f08a24", "#d63384", "#2f6fed", "#8a6d00"];
 
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
@@ -251,7 +286,8 @@ const catImg = (cat, cls) => imgOr(`/images/app/cat-${cat.normalize("NFD").repla
 // ---------- navegación ----------
 function nav(active) {
   const t = [["", "map", "Explorar"], ["actividades", "cal", "Actividades"], ["mis-espacios", "book", "Mis espacios"], ["perfil", "user", "Perfil"]];
-  document.getElementById("nav").innerHTML = t.map(([h, i, l]) => `<a href="#/${h}" class="${active === h ? "on" : ""}">${ic(i)}<span>${l}</span></a>`).join("");
+  const html = t.map(([h, i, l]) => `<a href="#/${h}" class="${active === h ? "on" : ""}">${ic(i)}<span>${l}</span></a>`).join("");
+  document.getElementById("nav").innerHTML = html; document.getElementById("dnav").innerHTML = html;
 }
 function back(title, href) { return `<div class="back"><a href="${href}" aria-label="Volver">${ic("back")}</a><h1>${esc(title)}</h1></div>`; }
 const note = (t) => `<div class="note">${ic("info", "s")}<span>${t}</span></div>`;
@@ -268,7 +304,7 @@ function filteredSpaces() {
 function viewHome() {
   nav("");
   const st = S.stats;
-  $app.innerHTML = `<h1>Espacios cerca de ti</h1><p class="sub">Descubre parques y losas, revisa sus horarios y únete a actividades.</p>
+  $app.innerHTML = `<div class="explore"><div class="ex-head"><h1>Espacios cerca de ti</h1><p class="sub">Descubre parques y losas, revisa sus horarios y únete a actividades.</p>
   <a class="live" href="#/en-vivo"><span class="pulse"></span><div><b>${st.playingNow}</b> <span style="font-weight:800">vecinos jugando ahora</span><div class="muted">${st.liveActivities} actividades en curso · ${st.neighbors} vecinos activos (datos simulados)</div></div><span style="margin-left:auto">${ic("right")}</span></a>
   <label class="search">${ic("search")}<input id="q" type="search" placeholder="Busca un parque o losa" value="${esc(Q.q)}" aria-label="Buscar espacio"></label>
   <div class="filters">
@@ -276,7 +312,7 @@ function viewHome() {
     <div class="sel">${ic("pin", "s")}<select id="fd" aria-label="Distancia"><option value="">Distancia</option><option value="0.7" ${Q.dist === "0.7" ? "selected" : ""}>Menos de 700 m</option><option value="1.5" ${Q.dist === "1.5" ? "selected" : ""}>Menos de 1,5 km</option></select>${ic("chev", "chev")}</div>
     <div class="sel">${ic("cal", "s")}<select id="fh" aria-label="Horario"><option value="">Horario</option><option value="ahora" ${Q.hour === "ahora" ? "selected" : ""}>Abierto ahora</option></select>${ic("chev", "chev")}</div>
   </div>
-  <div id="map" role="application" aria-label="Mapa de espacios"></div><div id="sel"></div>
+  </div><div id="map" role="application" aria-label="Mapa de espacios"></div><div id="sel"></div></div>
   ${note("Horarios y disponibilidad sujetos a confirmación municipal. Todos los datos de esta demo son simulados.")}`;
   const rerender = () => { Q.q = document.getElementById("q").value; Q.act = document.getElementById("fa").value; Q.dist = document.getElementById("fd").value; Q.hour = document.getElementById("fh").value; drawMap(); };
   document.getElementById("q").oninput = rerender; ["fa", "fd", "fh"].forEach((id) => (document.getElementById(id).onchange = rerender));
@@ -287,7 +323,8 @@ function drawMap(selId) {
   const list = filteredSpaces(); const el = document.getElementById("map"); if (!el) return;
   const pick = list.find((s) => s.id === selId) || list[0];
   const sel = document.getElementById("sel");
-  sel.innerHTML = pick ? spaceCard(pick) : `<div class="card"><strong>No hay espacios con esos filtros.</strong></div>`;
+  const wide = matchMedia("(min-width:1024px)").matches; // en escritorio se listan todos los espacios
+  sel.innerHTML = !pick ? `<div class="card"><strong>No hay espacios con esos filtros.</strong></div>` : wide ? list.map((x) => spaceCard(x, x.id === pick.id)).join("") : spaceCard(pick);
   if (!window.L) { el.outerHTML = '<div class="card muted">El mapa necesita internet. Usa la lista de espacios de abajo.</div>'; return; }
   if (MAP) { MAP.remove(); MAP = null; }
   MAP = L.map(el, { zoomControl: true, attributionControl: true }).setView(CENTER, 15);
@@ -301,9 +338,9 @@ function drawMap(selId) {
   if (pts.length > 1) MAP.fitBounds(pts, { padding: [50, 50], maxZoom: 16 });
   setTimeout(() => MAP && MAP.invalidateSize(), 50);
 }
-function spaceCard(s) {
+function spaceCard(s, on) {
   const next = S.activities.filter((a) => a.spaceId === s.id && a.status !== "completada").length;
-  return `<div class="card"><div class="sp" style="margin:0 0 12px">${spaceImg(s, "thumb")}<div style="flex:1;min-width:0"><div class="between"><h2 style="margin:0">${esc(s.name)}</h2>${ic("right")}</div>
+  return `<div class="card" ${on ? 'style="outline:3px solid var(--y)"' : ""}><div class="sp" style="margin:0 0 12px">${spaceImg(s, "thumb")}<div style="flex:1;min-width:0"><div class="between"><h2 style="margin:0">${esc(s.name)}</h2>${ic("right")}</div>
     <div style="margin:8px 0"><span class="chip ${openNow(s) ? "" : "gr"}">${ic("check", "s")} ${openNow(s) ? "Abierto para actividades" : "Fuera de horario"}</span></div>
     <div class="act"><div class="ln" style="margin:0">${ic("cal", "s")} ${esc(s.schedule)}</div></div>
     <div class="ln" style="display:flex;gap:8px;align-items:center;color:var(--ink2)">${ic("ball", "s")} ${esc(s.sports || "")}</div>
@@ -318,13 +355,13 @@ function viewSpace(id) {
   const favs = getFavs(), isFav = favs.includes(id);
   const R = [["calcheck", s.rules[0] || "Respeta los turnos"], ["play", s.rules[1] || "Cuida las instalaciones"], ["trash", "Deja limpio el espacio"]];
   $app.innerHTML = `${back(s.name, "#/")}
-  <div class="hero">${spaceImg(s, "hero")}<span class="badge-demo">Espacio de demostración</span></div>
+  <div class="space-grid"><div class="sp-l"><div class="hero">${spaceImg(s, "hero")}<span class="badge-demo">Espacio de demostración</span></div>
   <div class="tiles">
     <div class="tile"><div class="h">${ic("clock", "s")}<span>Horario habilitado</span></div><div class="v" style="background:var(--tsoft)">${hoursTxt(s)}</div></div>
     <div class="tile"><div class="h">${ic("users", "s")}<span>Cupo máximo</span></div><div class="v" style="background:var(--ysoft)">${s.capacity} personas</div></div>
     <div class="tile"><div class="h">${ic("ball", "s")}<span>Actividades</span></div><div class="v" style="background:var(--gsoft);color:#126b2f">${esc(s.sports || "Recreación")}</div></div></div>
   <div class="card"><h2 style="margin:0">Reglas del espacio</h2><p class="sub" style="margin:4px 0 0">Para que todos disfruten y el espacio se mantenga en buen estado.</p>
-    <div class="rules">${R.map(([i, t]) => `<div>${ic(i)}<br>${esc(t)}</div>`).join("")}</div></div>
+    <div class="rules">${R.map(([i, t]) => `<div>${ic(i)}<br>${esc(t)}</div>`).join("")}</div></div></div><div class="sp-r">
   <div class="card"><h2 style="margin:0 0 10px">Próximas actividades</h2>
     ${acts.map((a) => `<a class="card act" style="box-shadow:none;border:2px solid var(--line);margin-bottom:10px;text-decoration:none;align-items:center" href="#/actividad/${a.id}"><div class="thumb" style="width:64px;height:64px;border-radius:14px">${catImg(a.category, "thumb")}</div><div class="tx"><strong style="font-size:19px">${esc(a.title)}</strong>
       <div class="ln">${ic("cal", "s")} ${when(a.startsAt)} ${ic("users", "s")} ${a.participants.length}/${a.capacity}</div><div class="bar"><i style="width:${Math.min(100, (a.participants.length / a.capacity) * 100)}%"></i></div></div>${ic("right")}</a>`).join("") || '<p class="muted">Aún no hay actividades. Crea la primera.</p>'}
@@ -332,6 +369,7 @@ function viewSpace(id) {
     <a class="btn out" href="https://www.google.com/maps/dir/?api=1&destination=${s.lat},${s.lng}" target="_blank" rel="noopener">${ic("nav")} Cómo llegar</a></div>
   <div class="card"><div class="between"><div><strong style="font-size:19px">Cartel QR del espacio</strong><div class="muted">Se pega en el espacio. Al escanearlo, el vecino hace su check-in.</div></div></div><div id="qr" style="margin:12px 0"></div>
     <div class="row"><a class="btn out sm" href="#/qr/${s.qrToken}">Simular escaneo</a><button class="btn out sm" id="fav">${ic("book", "s")} ${isFav ? "Quitar de mis espacios" : "Guardar en mis espacios"}</button></div></div>
+  </div></div>
   ${note("Reglas y cupos visibles antes de usar el espacio.")}`;
   const qr = location.origin + "/#/qr/" + s.qrToken;
   if (window.QRCode) new QRCode(document.getElementById("qr"), { text: qr, width: 150, height: 150 }); else document.getElementById("qr").textContent = qr;
@@ -356,12 +394,12 @@ function viewActs(tab = "disponibles") {
   if (tab === "propuestas") {
     const need = S.stats.approvalVotes, list = S.proposals.slice().sort((a, b) => b.votes.length - a.votes.length);
     body = `<p class="sub">Propón un juego y el barrio lo apoya. Con ${need} apoyos pasa a ser una actividad.</p><a class="btn" href="#/proponer" style="margin-bottom:14px">${ic("bulb")} Proponer un juego</a>` +
-      list.map((p) => { const sp = space(p.spaceId), mine = p.votes.includes(myName()), ok = p.votes.length >= need;
+      '<div class="cols2">' + list.map((p) => { const sp = space(p.spaceId), mine = p.votes.includes(myName()), ok = p.votes.length >= need;
         return `<div class="card"><div class="between"><span class="chip t">${esc(p.category)}</span>${p.status === "programada" ? '<span class="chip">Ya es actividad</span>' : ok ? '<span class="chip y">Aprobada por el barrio</span>' : ""}</div>
         <h3 style="margin:8px 0 4px;font-size:22px">${esc(p.title)}</h3><div class="ln muted">${ic("pin", "s")} ${esc(sp?.name)} · propuesto por ${esc(p.proposedBy)} · ${ago(p.createdAt)}</div><p style="margin:8px 0">${esc(p.description)}</p>
         <div class="bar"><i style="width:${Math.min(100, (p.votes.length / need) * 100)}%;background:var(--y2)"></i></div><div class="muted">${p.votes.length} de ${need} apoyos</div>
         <div class="between" style="margin-top:10px"><div>${p.votes.slice(0, 5).map(avatar).join("")}</div>
-        ${p.status !== "abierta" ? `<a class="btn sm out" href="#/actividad/${p.activityId}">Ver actividad</a>` : ok ? `<button class="btn sm" data-promote="${p.id}">Convertir en actividad</button>` : `<button class="btn sm ${mine ? "out" : ""}" data-vote="${p.id}">${ic("heart", "s")} ${mine ? "Quitar apoyo" : "Apoyar"}</button>`}</div></div>`; }).join("");
+        ${p.status !== "abierta" ? `<a class="btn sm out" href="#/actividad/${p.activityId}">Ver actividad</a>` : ok ? `<button class="btn sm" data-promote="${p.id}">Convertir en actividad</button>` : `<button class="btn sm ${mine ? "out" : ""}" data-vote="${p.id}">${ic("heart", "s")} ${mine ? "Quitar apoyo" : "Apoyar"}</button>`}</div></div>`; }).join("") + '</div>';
   } else {
     let list = S.activities.filter((a) => a.status !== "completada");
     if (tab === "mias") list = S.activities.filter((a) => a.participants.some((p) => p.name === myName()));
@@ -552,10 +590,12 @@ function notFound() { nav(""); $app.innerHTML = '<h1>No encontrado</h1><a class=
 async function router(silent) {
   try { await refresh(); } catch { $app.innerHTML = "<p>No se pudo conectar con el servidor.</p>"; return; }
   const [, p, id] = location.hash.split("/");
+  $app.dataset.view = p || "home";
   if (!silent) window.scrollTo(0, 0);
   ({ espacio: viewSpace, actividades: viewActs, crear: viewCreate, proponer: viewPropose, actividad: viewActivity, qr: viewQr, cierre: viewClose, "mis-espacios": viewMine, perfil: viewProfile, "en-vivo": viewLive, muni: viewMuni }[p] || viewHome)(id);
 }
 addEventListener("hashchange", () => router(false));
+matchMedia("(min-width:1024px)").addEventListener("change", () => { if (!location.hash.split("/")[1]) drawMap(); });
 setInterval(async () => { // refresco suave solo en pantallas "en vivo"
   const p = location.hash.split("/")[1]; if (p !== "en-vivo" || document.hidden) return;
   try { await refresh(); viewLive(); } catch {}
