@@ -30,7 +30,7 @@ function seed() {
       { id: "act-1", spaceId: "losa-demo-1", title: "Vóley mixto de la tarde", category: "Vóley", startsAt: h(1), capacity: 12, status: "programada", participants: P(N.slice(0, 7)) },
       { id: "act-2", spaceId: "parque-demo-2", title: "Fútbol recreativo", category: "Fútbol", startsAt: h(3), capacity: 20, status: "programada", participants: P(N.slice(6, 12)) },
       { id: "act-3", spaceId: "losa-demo-1", title: "Básquet 3x3 (ya terminó)", category: "Básquet", startsAt: h(-26), capacity: 10, status: "completada",
-        participants: P(N.slice(1, 7), true), closure: { cleanSpace: true, checklist: { basura: true, equipos: true, areaOrdenada: true }, closedAt: h(-24) } },
+        participants: P(N.slice(1, 7), true), closure: { cleanSpace: true, checklist: { basura: true, equipos: true, areaOrdenada: true }, closedAt: h(-24), closedBy: "Camila", confirmedBy: ["Diego", "Joaquín"] } },
     ],
     proposals: [
       { id: "prop-1", spaceId: "losa-demo-1", title: "Vóley sentado para adultos mayores", category: "Vóley", description: "Una hora suave, con red baja, para que todos jueguen.", proposedBy: "Lucía", createdAt: h(-20), status: "abierta", votes: ["Lucía", "Diego", "Camila", "Renzo", "Sofía", "Mateo"] },
@@ -115,7 +115,7 @@ function route(method, url, body) {
     db.activities.push(act); feed("create", `${act.participants[0].name} creó ${act.title} en ${space.name}`); save(); return act;
   }
 
-  if (method === "POST" && (r = m(/^\/api\/activities\/([\w-]+)\/(join|checkin|close)$/))) {
+  if (method === "POST" && (r = m(/^\/api\/activities\/([\w-]+)\/(join|checkin|close|confirm)$/))) {
     const act = db.activities.find((a) => a.id === r[1]);
     if (!act) throw httpErr(404, "Actividad no encontrada");
     const name = clean(body.name, 40) || "Vecino";
@@ -136,6 +136,13 @@ function route(method, url, body) {
       feed("checkin", `${name} llegó a ${act.title}`);
       const photo = okPhoto(body.beforePhoto);
       if (photo) act.beforePhoto = photo;
+    } else if (r[2] === "confirm") {
+      if (act.status !== "completada" || !act.closure) throw httpErr(400, "La actividad aún no tiene cierre");
+      if (!person?.checkedInAt) throw httpErr(400, "Solo quienes llegaron al espacio pueden confirmar el cierre");
+      act.closure.confirmedBy = act.closure.confirmedBy || [];
+      if (name === act.closure.closedBy || act.closure.confirmedBy.includes(name)) throw httpErr(400, "Ya confirmaste este cierre");
+      act.closure.confirmedBy.push(name);
+      feed("confirm", `${name} confirmó el cierre de ${act.title}`);
     } else {
       if (!person) throw httpErr(400, "Solo quienes participan pueden cerrar");
       if (!person.checkedInAt) throw httpErr(400, "Primero confirma tu llegada con el check-in");
@@ -144,7 +151,7 @@ function route(method, url, body) {
       const checklist = { basura: !!c.basura, equipos: !!c.equipos, areaOrdenada: !!c.areaOrdenada };
       const cleanSpace = checklist.basura && checklist.equipos && checklist.areaOrdenada;
       act.status = "completada";
-      act.closure = { cleanSpace, checklist, notes: clean(body.notes, 300), closedAt: new Date().toISOString() };
+      act.closure = { cleanSpace, checklist, notes: clean(body.notes, 300), closedAt: new Date().toISOString(), closedBy: name, confirmedBy: [] };
       const photo = okPhoto(body.afterPhoto);
       if (photo) act.afterPhoto = photo;
       const space = db.spaces.find((s) => s.id === act.spaceId);
