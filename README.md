@@ -54,7 +54,7 @@ Si todo está bien: *Merge pull request* en GitHub. Si no, deja un comentario cl
 | [.github/pull_request_template.md](.github/pull_request_template.md) | Plantilla que aparece al abrir un pull request. |
 | [.gitignore](.gitignore) | Lista de archivos que Git no debe subir (secretos y archivos locales). |
 
-## Ejecutar la demo (JuegaBarrio)
+## Ejecutar la demo (Pukllay)
 
 No necesita instalar nada, solo Node 20 o superior:
 

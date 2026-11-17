@@ -4,7 +4,7 @@ Cada bloque sigue la plantilla `.github/ISSUE_TEMPLATE/tarea.md`. La tabla de `M
 
 ## [Tarea] Base técnica, datos demo y tipos compartidos
 **Qué hay que hacer:** crear el servidor Node (`server.mjs`), los datos demo y la API.
-**Está terminado cuando…** `npm install` y `npm run dev` abren la app en `localhost:3000` en la copia de cada integrante.
+**Está terminado cuando…** `node server.mjs` abre la app en `localhost:3000` en la copia de cada integrante.
 **Depende de…** acordar `MVP.md`. **Responsable:** Dev A. **Rama:** `tarea/base-tecnica`
 
 ## [Tarea] Mapa y lista de espacios demo

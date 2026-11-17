@@ -1,4 +1,4 @@
-// JuegaBarrio - servidor de la demo. Sin dependencias: solo Node 20+.
+// Pukllay - servidor de la demo. Sin dependencias: solo Node 20+.
 // Uso: node server.mjs  ->  http://localhost:3000
 import http from "node:http";
 import fs from "node:fs";
@@ -217,4 +217,4 @@ http.createServer((req, res) => {
   }
   if ((!file.startsWith(PUBLIC) && !file.startsWith(path.dirname(DATA_FILE))) || !fs.existsSync(file) || fs.statSync(file).isDirectory()) file = path.join(PUBLIC, "index.html");
   send(200, fs.readFileSync(file), TYPES[path.extname(file)] || "application/octet-stream");
-}).listen(PORT, () => console.log(`JuegaBarrio en http://localhost:${PORT}`));
+}).listen(PORT, () => console.log(`Pukllay en http://localhost:${PORT}`));
