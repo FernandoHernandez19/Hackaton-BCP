@@ -210,6 +210,11 @@ http.createServer((req, res) => {
 
   // Archivos estáticos; cualquier otra ruta devuelve la app (rutas con #)
   let file = path.normalize(path.join(PUBLIC, url.pathname === "/" ? "index.html" : url.pathname));
-  if (!file.startsWith(PUBLIC) || !fs.existsSync(file) || fs.statSync(file).isDirectory()) file = path.join(PUBLIC, "index.html");
+  // Fotos de la app: se pueden subir al volumen de datos sin reconstruir la app (DATA_DIR/images-app)
+  if (url.pathname.startsWith("/images/app/")) {
+    const extra = path.normalize(path.join(path.dirname(DATA_FILE), "images-app", path.basename(url.pathname)));
+    if (fs.existsSync(extra)) file = extra;
+  }
+  if ((!file.startsWith(PUBLIC) && !file.startsWith(path.dirname(DATA_FILE))) || !fs.existsSync(file) || fs.statSync(file).isDirectory()) file = path.join(PUBLIC, "index.html");
   send(200, fs.readFileSync(file), TYPES[path.extname(file)] || "application/octet-stream");
 }).listen(PORT, () => console.log(`JuegaBarrio en http://localhost:${PORT}`));

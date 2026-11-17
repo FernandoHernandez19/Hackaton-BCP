@@ -242,9 +242,9 @@ function scene(kind) {
   <rect y="132" width="320" height="88" fill="${court ? "#4aa7c9" : "#7cc66a"}"/>${court ? '<g stroke="#fff" stroke-width="3" fill="none"><rect x="30" y="148" width="260" height="58" rx="4"/><path d="M160 148v58"/><circle cx="160" cy="177" r="14"/></g><rect x="148" y="100" width="4" height="48" fill="#444"/><path d="M104 118h112" stroke="#fff" stroke-width="3"/>' : '<circle cx="70" cy="92" r="46" fill="#4f9e45"/><circle cx="108" cy="104" r="32" fill="#5fb353"/><rect x="64" y="110" width="12" height="52" fill="#8a5a36"/><rect x="214" y="150" width="70" height="10" rx="3" fill="#c88a4e"/><rect x="220" y="140" width="58" height="8" rx="3" fill="#d9a066"/><rect x="262" y="96" width="5" height="60" fill="#333"/><circle cx="264" cy="92" r="9" fill="#ffd54a"/>'}</svg>`;
 }
 function tileCat(cat) { return `<svg viewBox="0 0 120 120"><rect width="120" height="120" fill="${cat === "Vóley" ? "#4aa7c9" : cat === "Baile" || cat === "Bienestar" ? "#ffe7a3" : "#7cc66a"}"/><circle cx="60" cy="60" r="30" fill="#fff"/><g transform="translate(40 40) scale(1.7)" stroke="#14181f" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><use href="#i-${ICON(cat)}"/></g></svg>`; }
-const imgOr = (src, fb, cls) => `<span class="${cls}" style="display:block;position:relative"><img src="${src}" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block;position:absolute;inset:0" onerror="this.remove()">${fb}</span>`;
-const spaceImg = (sp, cls) => imgOr(`/img/${sp.id}.jpg`, scene(sp.type), cls);
-const catImg = (cat, cls) => imgOr(`/img/cat-${cat.normalize("NFD").replace(/[^a-z]/gi, "").toLowerCase()}.jpg`, tileCat(cat), cls);
+const imgOr = (base, fb, cls) => `<span class="${cls}" style="display:block;position:relative">${fb}<img src="${base}.jpg" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block;position:absolute;inset:0" onerror="if(!this.dataset.t){this.dataset.t=1;this.src='${base}.png'}else{this.remove()}"></span>`;
+const spaceImg = (sp, cls) => imgOr(`/images/app/${sp.id}`, scene(sp.type), cls);
+const catImg = (cat, cls) => imgOr(`/images/app/cat-${cat.normalize("NFD").replace(/[^a-z]/gi, "").toLowerCase()}`, tileCat(cat), cls);
 
 // ---------- navegación ----------
 function nav(active) {
