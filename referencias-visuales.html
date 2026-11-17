@@ -1,0 +1,1062 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Tablero visual — Mi Barrio Verde x Yape</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<style>
+/* =========================================================
+   TOKENS — dirección "Cuadra viva"
+   ========================================================= */
+:root{
+  /* Marca del prototipo (no son colores oficiales de Yape) */
+  --morado-900:#3F1A63;
+  --morado-700:#6B2FA6;   /* primario: acciones de marca, XP, navegación activa */
+  --morado-100:#F1E9FA;
+  /* Expresión ambiental */
+  --verde-700:#1F8A4C;    /* acción "Limpiar", zona verde, éxito */
+  --verde-500:#2E9E5B;    /* mascota */
+  --verde-100:#E3F4E8;
+  /* Estados del mapa (reservados) */
+  --amarillo-500:#F2B705; /* solo relleno: zona amarilla */
+  --amarillo-900:#3A2A00; /* texto sobre amarillo */
+  --amarillo-100:#FFF4CC;
+  --rojo-600:#C9302C;     /* zona roja / crítico */
+  --rojo-100:#FBE5E4;
+  /* Monedas */
+  --turquesa-700:#0B7A75;
+  --turquesa-100:#DDF3F1;
+  /* Neutros con matiz morado */
+  --tinta:#1D1530;
+  --texto:#433C52;
+  --apagado:#6B6580;
+  --linea:#E4DEEC;
+  --fondo:#F6F4F9;
+  --superficie:#FFFFFF;
+
+  --font:"Figtree","Segoe UI",Roboto,"Helvetica Neue",system-ui,sans-serif;
+
+  --s1:4px;--s2:8px;--s3:12px;--s4:16px;--s5:24px;--s6:32px;--s7:48px;
+  --r-chip:999px;--r-sm:8px;--r-btn:12px;--r-card:16px;--r-sheet:24px;
+  --sh-1:0 1px 2px rgba(29,21,48,.08);
+  --sh-2:0 8px 24px rgba(29,21,48,.12);
+  --sh-marker:0 2px 0 rgba(29,21,48,.25);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{animation:none!important;transition:none!important}}
+body{
+  margin:0;font-family:var(--font);color:var(--texto);font-size:16px;line-height:1.5;
+  background-color:var(--fondo);
+  background-image:radial-gradient(rgba(107,47,166,.10) 1px,transparent 1px);
+  background-size:20px 20px;
+}
+h1,h2,h3,h4{color:var(--tinta);margin:0;line-height:1.2}
+p{margin:0}
+a{color:var(--morado-700);text-underline-offset:3px}
+button{font:inherit;cursor:pointer}
+:focus-visible{outline:3px solid var(--morado-700);outline-offset:2px;border-radius:6px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.icon{width:20px;height:20px;flex:none;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.icon.sm{width:16px;height:16px}
+
+/* =========================================================
+   TABLERO
+   ========================================================= */
+.topbar{position:sticky;top:0;z-index:20;background:rgba(255,255,255,.94);backdrop-filter:blur(6px);border-bottom:1px solid var(--linea)}
+.topbar-in{max-width:1320px;margin:0 auto;padding:10px 16px;display:flex;gap:16px;align-items:center;justify-content:space-between}
+.brand{display:flex;gap:10px;align-items:center;font-weight:800;color:var(--tinta);white-space:nowrap}
+.brand-dot{width:28px;height:28px;border-radius:9px;background:var(--morado-700);display:grid;place-items:center}
+.toc{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none}
+.toc::-webkit-scrollbar{display:none}
+.toc a{white-space:nowrap;text-decoration:none;color:var(--texto);font-weight:600;font-size:14px;padding:8px 12px;border-radius:var(--r-chip)}
+.toc a:hover{background:var(--morado-100);color:var(--morado-900)}
+@media (max-width:720px){.brand span{display:none}}
+
+main{max-width:1320px;margin:0 auto;padding:24px 16px 80px;display:flex;flex-direction:column;gap:32px}
+.board{background:var(--superficie);border:1px solid var(--linea);border-radius:20px;padding:32px;box-shadow:var(--sh-1);scroll-margin-top:70px}
+@media (max-width:720px){.board{padding:20px 16px;border-radius:16px}}
+.board-head{display:flex;flex-wrap:wrap;gap:8px 24px;align-items:baseline;justify-content:space-between;margin-bottom:24px}
+.board-head h2{font-size:28px;font-weight:800;letter-spacing:-.01em}
+.board-head .letter{display:inline-grid;place-items:center;width:36px;height:36px;border-radius:10px;background:var(--tinta);color:#fff;font-size:18px;margin-right:10px;vertical-align:-4px}
+.board-head p{color:var(--apagado);max-width:60ch}
+.note{font-size:14px;color:var(--apagado)}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:20px}
+.grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr));gap:20px}
+.panel{border:1px solid var(--linea);border-radius:var(--r-card);padding:20px;background:#fff}
+.panel h3{font-size:18px;margin-bottom:8px}
+.panel.soft{background:var(--fondo)}
+
+/* A. Hero */
+.hero{display:grid;grid-template-columns:1.2fr 1fr;gap:32px;align-items:center}
+@media (max-width:900px){.hero{grid-template-columns:1fr}}
+.hero h1{font-size:clamp(34px,5vw,52px);font-weight:800;letter-spacing:-.02em;line-height:1.05;max-width:16ch}
+.hero .lead{font-size:18px;margin-top:16px;max-width:56ch}
+.hero-stage{position:relative;background:#EEF2EA;border-radius:24px;min-height:300px;overflow:hidden;border:1px solid var(--linea)}
+.hero-stage svg.streets{position:absolute;inset:0;width:100%;height:100%}
+.pillars{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px}
+.pill{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:var(--r-chip);background:var(--fondo);border:1px solid var(--linea);font-size:14px;font-weight:600;color:var(--tinta)}
+.decisions{margin-top:24px;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:16px}
+.diff-list{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:8px;font-size:15px}
+.diff-list b{color:var(--tinta)}
+
+/* B. Referencias */
+.ref{display:flex;flex-direction:column;gap:12px}
+.ref-top{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}
+.ref-top h3{font-size:19px;margin:0}
+.ref-kind{font-size:13px;font-weight:700;color:var(--morado-900);background:var(--morado-100);padding:4px 10px;border-radius:var(--r-chip);white-space:nowrap}
+.ref a.url{font-size:14px;word-break:break-all}
+.ref dl{margin:0;display:grid;gap:10px}
+.ref dt{font-size:13px;font-weight:700;color:var(--apagado)}
+.ref dd{margin:0;font-size:15px}
+.ref .shot{font-size:13px;color:var(--apagado);border-top:1px dashed var(--linea);padding-top:10px}
+
+/* C. Paleta y tipo */
+.swatches{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,200px),1fr));gap:12px}
+.sw{border:1px solid var(--linea);border-radius:14px;overflow:hidden;background:#fff;text-align:left;padding:0;color:inherit}
+.sw .chip{height:72px;display:flex;align-items:flex-end;padding:8px 10px;font-weight:700;font-size:14px}
+.sw .meta{padding:10px 12px;font-size:14px}
+.sw .meta b{display:block;color:var(--tinta)}
+.sw .hex{font-variant-numeric:tabular-nums;font-weight:600;color:var(--tinta)}
+.sw:hover{box-shadow:var(--sh-2)}
+.group-title{font-size:16px;font-weight:800;color:var(--tinta);margin:24px 0 12px}
+.type-row{display:grid;grid-template-columns:150px 1fr;gap:16px;align-items:baseline;padding:12px 0;border-bottom:1px solid var(--linea)}
+.type-row:last-child{border-bottom:0}
+.type-row .spec{font-size:13px;color:var(--apagado);font-weight:600}
+@media (max-width:560px){.type-row{grid-template-columns:1fr;gap:4px}}
+.tokens-table{width:100%;border-collapse:collapse;font-size:14px;table-layout:fixed;overflow-wrap:anywhere}
+svg.streets,svg.base{overflow:hidden;max-width:100%}
+.hero-stage,.map{max-width:100%}
+.tokens-table th,.tokens-table td{text-align:left;padding:8px 6px;border-bottom:1px solid var(--linea);vertical-align:top}
+.tokens-table th{color:var(--apagado);font-weight:700;font-size:13px}
+.radius-demo{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end}
+.radius-demo div{width:64px;height:48px;background:var(--morado-100);border:2px solid var(--morado-700);display:grid;place-items:center;font-size:12px;font-weight:700;color:var(--morado-900)}
+.icon-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:8px}
+.icon-grid div{display:flex;flex-direction:column;align-items:center;gap:6px;padding:10px 4px;border-radius:12px;background:var(--fondo);font-size:12px;font-weight:600;color:var(--tinta)}
+.icon-grid .icon{width:24px;height:24px}
+
+/* =========================================================
+   COMPONENTES DE LA APP
+   ========================================================= */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:12px 18px;border-radius:var(--r-btn);border:2px solid transparent;font-weight:700;font-size:16px;line-height:1.2;text-align:center;transition:transform .12s ease,background .15s ease}
+.btn:active{transform:translateY(1px)}
+.btn.full{width:100%}
+.btn-primary{background:var(--morado-700);color:#fff;box-shadow:0 3px 0 var(--morado-900)}
+.btn-primary:hover{background:#5D2791}
+.btn-clean{background:var(--verde-700);color:#fff;box-shadow:0 3px 0 #136338}
+.btn-clean:hover{background:#1A7A42}
+.btn-secondary{background:#fff;color:var(--tinta);border-color:var(--linea)}
+.btn-secondary:hover{border-color:var(--morado-700)}
+.btn-ghost{background:transparent;color:var(--morado-700);padding-inline:8px}
+.btn[disabled],.btn[aria-disabled="true"]{background:#EEEBF2;color:#8A8499;box-shadow:none;border-color:transparent;cursor:not-allowed}
+.btn.sm{min-height:40px;padding:8px 12px;font-size:14px;border-radius:10px}
+.btn-help{display:flex;gap:6px;align-items:flex-start;font-size:13px;color:var(--apagado);margin-top:6px;font-weight:500}
+
+.tag{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:var(--r-chip);font-size:12px;font-weight:700;line-height:1.4;white-space:nowrap}
+.tag-sim{border:1.5px dashed #8A8499;color:var(--apagado);background:#fff}
+.tag-zona{background:var(--morado-100);color:var(--morado-900)}
+.tag-otra{background:#EEEBF2;color:var(--texto)}
+.tag-verde{background:var(--verde-100);color:#135A31}
+.tag-amarillo{background:var(--amarillo-100);color:var(--amarillo-900)}
+.tag-rojo{background:var(--rojo-100);color:#8E1F1C}
+
+/* XP vs monedas */
+.xp,.coin{display:inline-flex;align-items:center;gap:6px;font-weight:800;font-variant-numeric:tabular-nums;white-space:nowrap}
+.xp{color:var(--morado-700)}
+.coin{color:var(--turquesa-700)}
+.xp-ico{width:18px;height:18px;flex:none}
+.coin-ico{width:18px;height:18px;flex:none}
+.balance{display:inline-flex;gap:6px;align-items:center;padding:6px 10px;border-radius:var(--r-chip);font-size:14px}
+.balance.xp{background:var(--morado-100)}
+.balance.coin{background:var(--turquesa-100)}
+
+.xpbar{height:12px;border-radius:99px;background:#E9E2F3;overflow:hidden}
+.xpbar>span{display:block;height:100%;background:linear-gradient(90deg,#8B4FCB,var(--morado-700));border-radius:99px}
+
+.alert{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border-radius:14px;font-size:14px;line-height:1.4}
+.alert .icon{margin-top:1px}
+.alert b{color:inherit}
+.alert-mision{background:var(--morado-100);color:var(--morado-900)}
+.alert-ok{background:var(--verde-100);color:#135A31}
+.alert-regla{background:#F1EFF4;color:var(--texto)}
+.alert-error{background:var(--rojo-100);color:#8E1F1C}
+.alert-sim{background:#fff;border:1.5px dashed #B5AFC2;color:var(--apagado)}
+
+/* Marcadores del mapa: color + forma + icono + texto */
+.mk{position:absolute;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:3px;background:none;border:0;padding:4px;min-width:44px;min-height:44px;z-index:2}
+.mk-shape{width:34px;height:34px;display:grid;place-items:center;color:#fff;filter:drop-shadow(0 2px 0 rgba(29,21,48,.28))}
+.mk-shape .icon{width:18px;height:18px;stroke-width:2.6}
+.mk-label{font-size:11px;font-weight:800;color:var(--tinta);background:#fff;padding:1px 7px;border-radius:99px;box-shadow:var(--sh-1);white-space:nowrap}
+.mk.verde .mk-shape{background:var(--verde-700);border-radius:50%}
+.mk.amarillo .mk-shape{background:var(--amarillo-500);color:var(--amarillo-900);border-radius:6px;transform:rotate(45deg);width:30px;height:30px}
+.mk.amarillo .mk-shape .icon{transform:rotate(-45deg)}
+.mk.rojo .mk-shape{background:var(--rojo-600);clip-path:polygon(30% 0,70% 0,100% 30%,100% 70%,70% 100%,30% 100%,0 70%,0 30%);filter:none}
+.mk.tacho .mk-shape{background:var(--tinta);border-radius:9px;width:30px;height:30px}
+.mk.mine .mk-label{background:var(--tinta);color:#fff}
+.mk[aria-pressed="true"] .mk-label{outline:2px solid var(--morado-700)}
+.mk[aria-pressed="true"] .mk-shape{scale:1.15}
+.me{position:absolute;transform:translate(-50%,-50%);width:22px;height:22px;border-radius:50%;background:var(--morado-700);border:4px solid #fff;box-shadow:0 0 0 6px rgba(107,47,166,.22)}
+.static-markers{display:flex;flex-wrap:wrap;gap:18px}
+.static-markers .mk{position:relative;transform:none}
+
+/* Leyenda */
+.legend{display:flex;flex-wrap:wrap;gap:6px 12px;font-size:12px;font-weight:700;color:var(--tinta)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.lg{width:12px;height:12px;display:inline-block}
+.lg.v{background:var(--verde-700);border-radius:50%}
+.lg.a{background:var(--amarillo-500);transform:rotate(45deg);border-radius:2px;width:10px;height:10px}
+.lg.r{background:var(--rojo-600);clip-path:polygon(30% 0,70% 0,100% 30%,100% 70%,70% 100%,30% 100%,0 70%,0 30%)}
+.lg.t{background:var(--tinta);border-radius:3px}
+
+/* =========================================================
+   TELÉFONOS (pantallas alta fidelidad)
+   ========================================================= */
+.phones{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,360px),1fr));gap:28px;justify-items:center;align-items:start}
+.phone-wrap{width:100%;max-width:372px;display:flex;flex-direction:column;gap:12px}
+.phone-cap{font-size:15px;font-weight:800;color:var(--tinta)}
+.phone-cap small{display:block;font-weight:500;color:var(--apagado);font-size:13px}
+.phone{width:100%;height:760px;border-radius:40px;background:var(--tinta);padding:10px;box-shadow:var(--sh-2)}
+.screen{position:relative;height:100%;border-radius:31px;background:var(--fondo);overflow:hidden;display:flex;flex-direction:column}
+.statusbar{display:flex;justify-content:space-between;align-items:center;padding:10px 22px 4px;font-size:13px;font-weight:700;color:var(--tinta)}
+.yape-strip{display:flex;align-items:center;gap:8px;padding:6px 16px 10px;font-size:13px;color:var(--apagado);font-weight:600}
+.yape-strip .back{width:32px;height:32px;border-radius:10px;background:#fff;display:grid;place-items:center;border:1px solid var(--linea);color:var(--tinta)}
+.scroll{flex:1;overflow-y:auto;padding:0 14px 14px;display:flex;flex-direction:column;gap:10px;scrollbar-width:thin}
+.navbar{display:grid;grid-template-columns:repeat(4,1fr);background:#fff;border-top:1px solid var(--linea);padding:6px 6px 14px}
+.nav-i{display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 2px;border-radius:12px;font-size:12px;font-weight:700;color:var(--apagado);background:none;border:0;min-height:48px}
+.nav-i .icon{width:22px;height:22px}
+.nav-i[aria-current="page"]{color:var(--morado-700)}
+.nav-i[aria-current="page"] .nav-pill{background:var(--morado-100)}
+.nav-pill{padding:3px 16px;border-radius:99px;display:grid;place-items:center}
+
+.zone-head{background:#fff;border-radius:var(--r-card);padding:12px;display:flex;justify-content:space-between;gap:10px;align-items:center;box-shadow:var(--sh-1)}
+.zone-head .z-name{font-weight:800;color:var(--tinta);font-size:16px;line-height:1.2}
+.zone-head .z-sub{font-size:13px;color:var(--apagado);display:flex;align-items:center;gap:4px;margin-top:2px}
+.mini-bal{display:flex;flex-direction:column;align-items:flex-end;gap:2px;font-size:14px}
+
+.map{position:relative;height:228px;border-radius:var(--r-card);overflow:hidden;background:#EEF2EA;border:1px solid var(--linea);flex:none}
+.map svg.base{position:absolute;inset:0;width:100%;height:100%}
+.map-legend{position:absolute;left:8px;right:8px;bottom:8px;background:rgba(255,255,255,.95);border-radius:12px;padding:6px 10px}
+
+.sheet{background:#fff;border-radius:var(--r-sheet);padding:14px;box-shadow:var(--sh-2);display:flex;flex-direction:column;gap:10px}
+.sheet-grab{width:40px;height:4px;border-radius:4px;background:var(--linea);margin:0 auto}
+.sheet h4{font-size:17px}
+.sheet .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.sheet .photo{height:84px;border-radius:12px;background:repeating-linear-gradient(135deg,#ECE8F1 0 10px,#F5F2F8 10px 20px);display:flex;align-items:center;justify-content:center;gap:6px;font-size:13px;color:var(--apagado);font-weight:600}
+.reward{display:flex;gap:8px;flex-wrap:wrap}
+.actions{display:grid;gap:8px}
+.actions.two{grid-template-columns:1fr 1fr}
+
+/* Misión */
+.stepper{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.step{display:flex;flex-direction:column;gap:6px;font-size:12px;font-weight:700;color:var(--apagado)}
+.step i{height:6px;border-radius:6px;background:#E3DEEA;display:block}
+.step.done i{background:var(--verde-700)}
+.step.now i{background:var(--morado-700)}
+.step.now{color:var(--morado-900)}
+.step.done{color:#135A31}
+.timer{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:700;color:var(--morado-900);background:var(--morado-100);border-radius:99px;padding:6px 10px;width:max-content}
+.cam{position:relative;height:250px;border-radius:20px;background:#2A2338;overflow:hidden;display:flex;align-items:center;justify-content:center;color:#CFC8DB;flex:none}
+.cam .corner{position:absolute;width:44px;height:44px;border:4px solid #fff}
+.cam .c1{top:46px;left:80px;border-right:0;border-bottom:0;border-radius:10px 0 0 0}
+.cam .c2{top:46px;right:80px;border-left:0;border-bottom:0;border-radius:0 10px 0 0}
+.cam .c3{bottom:46px;left:80px;border-right:0;border-top:0;border-radius:0 0 0 10px}
+.cam .c4{bottom:46px;right:80px;border-left:0;border-top:0;border-radius:0 0 10px 0}
+.cam .sim{position:absolute;top:10px;left:10px}
+.cam .hint{position:absolute;bottom:12px;left:12px;right:12px;text-align:center;font-size:13px;font-weight:600;color:#fff}
+.mission-title{font-size:20px;font-weight:800;color:var(--tinta);line-height:1.2}
+.celebrate{display:flex;flex-direction:column;align-items:center;text-align:center;gap:10px;padding:16px 8px;background:#fff;border-radius:var(--r-sheet)}
+
+/* Mascota */
+.pet-card{background:linear-gradient(180deg,var(--morado-100),#fff 70%);border-radius:var(--r-sheet);padding:14px;display:flex;flex-direction:column;gap:10px}
+.pet-top{display:flex;gap:12px;align-items:center}
+.pet-top svg{width:96px;height:96px;flex:none}
+.lvl-name{font-size:20px;font-weight:800;color:var(--tinta);line-height:1.15}
+.lvl-track{display:grid;grid-template-columns:repeat(4,1fr);font-size:11px;font-weight:700;color:var(--apagado);margin-top:4px}
+.lvl-track span:nth-child(2){text-align:center;transform:translateX(-30%)}
+.lvl-track span:nth-child(3){text-align:center}
+.lvl-track span:last-child{text-align:right}
+.lvl-track .on{color:var(--morado-900)}
+.card{background:#fff;border-radius:var(--r-card);padding:12px;box-shadow:var(--sh-1)}
+.card h5{margin:0 0 8px;font-size:15px;color:var(--tinta)}
+.streaks{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.streak{border-radius:14px;padding:10px;display:flex;flex-direction:column;gap:6px}
+.streak.personal{background:#fff;border:1px solid var(--linea)}
+.streak.zona{background:var(--morado-700);color:#fff}
+.streak .big{font-size:26px;font-weight:800;line-height:1}
+.streak .lbl{font-size:12px;font-weight:700}
+.week{display:flex;gap:3px}
+.week span{flex:1;height:20px;border-radius:6px;font-size:10px;font-weight:800;display:grid;place-items:center;background:rgba(255,255,255,.18);color:#fff}
+.week span.on{background:#fff;color:var(--morado-900)}
+.quest{display:grid;grid-template-columns:22px 1fr auto;gap:8px;align-items:center;padding:8px 0;border-top:1px solid var(--linea);font-size:14px}
+.quest:first-of-type{border-top:0}
+.quest .chk{width:22px;height:22px;border-radius:7px;border:2px solid var(--linea);display:grid;place-items:center}
+.quest.done .chk{background:var(--verde-700);border-color:var(--verde-700);color:#fff}
+.quest .prog{font-size:12px;color:var(--apagado)}
+.qbar{height:6px;border-radius:6px;background:#EEEBF2;margin-top:4px;overflow:hidden}
+.qbar span{display:block;height:100%;background:var(--morado-700)}
+.ejemplar{border-radius:var(--r-card);padding:12px;background:#fff;border:2px solid var(--verde-700);display:flex;gap:10px;align-items:flex-start}
+.ejemplar.off{border-color:var(--linea);opacity:.8}
+.seal{width:40px;height:40px;border-radius:12px;background:var(--verde-700);color:#fff;display:grid;place-items:center;flex:none}
+
+/* Cupones */
+.coupon{display:flex;flex-direction:column;border-radius:var(--r-card);background:#fff;border:1px solid var(--linea);overflow:hidden;box-shadow:var(--sh-1);max-width:420px}
+.coupon-top{padding:16px;display:flex;gap:12px;align-items:flex-start;position:relative}
+.merchant{width:52px;height:52px;border-radius:14px;display:grid;place-items:center;font-weight:800;font-size:18px;flex:none}
+.coupon h4{font-size:18px}
+.coupon .cond{font-size:13px;color:var(--apagado)}
+.coupon-cut{height:0;border-top:2px dashed var(--linea);margin:0 14px;position:relative}
+.coupon-cut::before,.coupon-cut::after{content:"";position:absolute;top:-11px;width:20px;height:20px;border-radius:50%;background:var(--superficie);border:1px solid var(--linea)}
+.coupon-cut::before{left:-25px}.coupon-cut::after{right:-25px}
+.coupon-bot{padding:14px 16px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.price-old{text-decoration:line-through;color:var(--apagado);font-weight:600;font-size:14px;margin-right:6px}
+.coupon.locked .coupon-top{filter:grayscale(1);opacity:.75}
+.lockbar{display:flex;gap:8px;align-items:center;font-size:13px;font-weight:700;color:var(--texto);background:#F1EFF4;padding:8px 12px;border-radius:10px}
+
+/* Switch demo */
+.switch{display:inline-flex;align-items:center;gap:10px;font-weight:700;color:var(--tinta);font-size:15px;cursor:pointer;user-select:none}
+.switch input{appearance:none;width:46px;height:28px;border-radius:99px;background:#D8D2E2;position:relative;cursor:pointer;transition:background .15s;margin:0}
+.switch input::after{content:"";position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;box-shadow:var(--sh-1);transition:transform .15s}
+.switch input:checked{background:var(--verde-700)}
+.switch input:checked::after{transform:translateX(18px)}
+.demo-controls{display:flex;flex-wrap:wrap;gap:12px 24px;align-items:center;padding:14px 16px;border-radius:14px;background:var(--fondo);border:1px dashed #C9C2D6;margin-bottom:24px}
+.toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%) translateY(120px);background:var(--tinta);color:#fff;padding:10px 16px;border-radius:12px;font-weight:600;font-size:14px;transition:transform .2s ease;z-index:50}
+.toast.show{transform:translateX(-50%) translateY(0)}
+
+.muni{display:grid;gap:8px}
+.muni-row{display:flex;justify-content:space-between;gap:8px;align-items:center;padding:10px 12px;border-radius:12px;background:var(--fondo);font-size:14px;flex-wrap:wrap}
+footer{max-width:1320px;margin:0 auto;padding:0 16px 40px;font-size:13px;color:var(--apagado)}
+</style>
+</head>
+<body>
+
+<!-- Sprite de iconos (trazo 2px, esquinas redondeadas, estilo propio tipo Lucide) -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-map" viewBox="0 0 24 24"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2z"/><path d="M9 4v14M15 6v14"/></symbol>
+    <symbol id="i-broom" viewBox="0 0 24 24"><path d="M14 4 9 13"/><path d="M6.5 12.5 12 15.5l-2 5.5H3.5L6.5 12.5z"/><path d="M8 17.5l-1 3.5M10.5 17l-.5 4"/><path d="M15 3l2 1-1.5 2.5"/></symbol>
+    <symbol id="i-sprout" viewBox="0 0 24 24"><path d="M12 21v-9"/><path d="M12 12C12 7 8.5 5 4 5c0 4.5 3 7 8 7z"/><path d="M12 10c0-4 3-6 8-6 0 4-3 6-8 6z"/></symbol>
+    <symbol id="i-ticket" viewBox="0 0 24 24"><path d="M3 8a2 2 0 0 0 2-2h14a2 2 0 0 0 2 2v2a2 2 0 0 0 0 4v2a2 2 0 0 0-2 2H5a2 2 0 0 0-2-2v-2a2 2 0 0 0 0-4V8z"/><path d="M13 6v2M13 11v2M13 16v2"/></symbol>
+    <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s7-6.1 7-12a7 7 0 0 0-14 0c0 5.9 7 12 7 12z"/><circle cx="12" cy="9" r="2.5"/></symbol>
+    <symbol id="i-home" viewBox="0 0 24 24"><path d="M4 11 12 4l8 7"/><path d="M6 10v10h12V10"/><path d="M10 20v-5h4v5"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></symbol>
+    <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 7v6"/><path d="M12 17h.01"/></symbol>
+    <symbol id="i-truck" viewBox="0 0 24 24"><path d="M3 6h11v10H3zM14 10h4l3 3v3h-7z"/><circle cx="7" cy="17.5" r="1.8"/><circle cx="17.5" cy="17.5" r="1.8"/></symbol>
+    <symbol id="i-qr" viewBox="0 0 24 24"><rect x="4" y="4" width="6" height="6" rx="1"/><rect x="14" y="4" width="6" height="6" rx="1"/><rect x="4" y="14" width="6" height="6" rx="1"/><path d="M14 14h2v2h-2zM18 14h2M14 18v2h2M18 18h2v2"/></symbol>
+    <symbol id="i-camera" viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></symbol>
+    <symbol id="i-flame" viewBox="0 0 24 24"><path d="M12 21c4 0 7-2.7 7-6.5 0-4-3.5-6-4-10-2.5 1.5-4 4-4 6.5-1-1-1.5-2-1.5-3C7 9.5 5 12 5 14.5 5 18.3 8 21 12 21z"/></symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3 5 6v5c0 4.5 3 8.5 7 10 4-1.5 7-5.5 7-10V6z"/></symbol>
+    <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7M18 14c2 .8 3 3 3 6"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></symbol>
+    <symbol id="i-building" viewBox="0 0 24 24"><path d="M4 21V5l8-2v18M12 8h8v13"/><path d="M7 8h2M7 12h2M7 16h2M15 12h2M15 16h2M2 21h20"/></symbol>
+    <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 11v5M12 8h.01"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="M7 7l10 10M17 7 7 17"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="i-back" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></symbol>
+    <symbol id="i-nav" viewBox="0 0 24 24"><path d="M4 11 20 4l-7 16-2-7z"/></symbol>
+    <symbol id="i-star" viewBox="0 0 24 24"><path d="m12 4 2.4 4.9 5.4.8-3.9 3.8.9 5.4L12 16.4l-4.8 2.5.9-5.4L4.2 9.7l5.4-.8z"/></symbol>
+    <!-- XP: hexágono con chispa (morado). Monedas: círculo con canto (turquesa) -->
+    <symbol id="i-xp" viewBox="0 0 24 24"><path d="M12 2.5 20.5 7.3v9.4L12 21.5 3.5 16.7V7.3z" fill="#6B2FA6" stroke="none"/><path d="m12.8 6.5-4 6.2h3.4l-1 4.8 4-6.2h-3.4z" fill="#fff" stroke="none"/></symbol>
+    <symbol id="i-coin" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.5" fill="#0B7A75" stroke="none"/><circle cx="12" cy="12" r="6.5" fill="none" stroke="#7FD4CD" stroke-width="1.6"/><path d="M9.5 14.5v-5l2.5 3 2.5-3v5" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <!-- Mascota original: YapiVerde (brote) -->
+    <symbol id="pet" viewBox="0 0 120 120">
+      <path d="M60 34c0-8-2-14-4-18" fill="none" stroke="#1F8A4C" stroke-width="4" stroke-linecap="round"/>
+      <path d="M57 20c-10-10-25-8-29 0 9 7 22 8 29 0z" fill="#3DBA6F"/>
+      <path d="M58 18c6-12 21-14 27-6-7 9-19 12-27 6z" fill="#6B2FA6"/>
+      <path d="M60 30c26 0 42 20 42 46 0 22-18 34-42 34S18 98 18 76c0-26 16-46 42-46z" fill="#2E9E5B"/>
+      <ellipse cx="60" cy="88" rx="25" ry="17" fill="#BFE8CC"/>
+      <circle cx="46" cy="66" r="10" fill="#fff"/><circle cx="74" cy="66" r="10" fill="#fff"/>
+      <circle cx="48" cy="68" r="5" fill="#1D1530"/><circle cx="76" cy="68" r="5" fill="#1D1530"/>
+      <circle cx="50" cy="65.5" r="1.8" fill="#fff"/><circle cx="78" cy="65.5" r="1.8" fill="#fff"/>
+      <ellipse cx="35" cy="80" rx="6" ry="4" fill="#F39BB5" opacity=".8"/><ellipse cx="85" cy="80" rx="6" ry="4" fill="#F39BB5" opacity=".8"/>
+      <path d="M52 80q8 8 16 0" fill="none" stroke="#1D1530" stroke-width="3.5" stroke-linecap="round"/>
+    </symbol>
+    <!-- Mapa base reutilizable -->
+    <symbol id="mapbase" viewBox="0 0 340 300" preserveAspectRatio="xMidYMid slice">
+      <rect width="340" height="300" fill="#EEF2EA"/>
+      <g fill="#E2E7DD">
+        <rect x="10" y="12" width="92" height="64" rx="6"/><rect x="128" y="12" width="84" height="64" rx="6"/><rect x="238" y="12" width="96" height="64" rx="6"/>
+        <rect x="10" y="104" width="92" height="74" rx="6"/><rect x="238" y="104" width="96" height="74" rx="6"/>
+        <rect x="10" y="206" width="92" height="88" rx="6"/><rect x="128" y="206" width="84" height="88" rx="6"/><rect x="238" y="206" width="96" height="88" rx="6"/>
+      </g>
+      <rect x="128" y="104" width="84" height="74" rx="10" fill="#CBEBD4"/>
+      <g fill="#A9DDB8"><circle cx="146" cy="122" r="6"/><circle cx="196" cy="160" r="7"/><circle cx="150" cy="164" r="5"/></g>
+      <g stroke="#fff" stroke-width="14" stroke-linecap="round">
+        <path d="M0 90h340M0 192h340M115 0v300M225 0v300"/>
+      </g>
+      <path d="M0 90h340" stroke="#F7E9B8" stroke-width="3"/>
+      <circle cx="170" cy="140" r="92" fill="rgba(107,47,166,.06)" stroke="#6B2FA6" stroke-width="2" stroke-dasharray="6 6"/>
+      <g font-family="Figtree,Segoe UI,sans-serif" font-size="10" font-weight="700" fill="#6B6580">
+        <text x="128" y="86">Av. Las Palmeras</text>
+        <text x="250" y="188">Jr. Las Flores</text>
+      </g>
+    </symbol>
+  </defs>
+</svg>
+
+<header class="topbar">
+  <div class="topbar-in">
+    <div class="brand"><div class="brand-dot"><svg class="icon sm" style="color:#fff"><use href="#i-sprout"/></svg></div><span>Mi Barrio Verde x Yape</span></div>
+    <nav class="toc" aria-label="Secciones del tablero">
+      <a href="#a">Resumen</a><a href="#b">Referencias</a><a href="#c">Paleta y tipo</a><a href="#d">Componentes</a><a href="#e">Pantallas</a><a href="#f">Cupones</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+<!-- ======================= A ======================= -->
+<section class="board" id="a" aria-labelledby="a-t">
+  <div class="hero">
+    <div>
+      <p class="note" style="font-weight:700;color:var(--morado-700)">Tablero de dirección visual, hackatón UPN × BCP, 17/11/2026</p>
+      <h1 id="a-t">Tu cuadra en verde, contada por todo el barrio</h1>
+      <p class="lead">Mi Barrio Verde x Yape convierte cuidar la calle en algo fácil (reportas en un toque), frecuente (rachas y misiones semanales con la mascota) y contagioso (si tu Zona Principal se mantiene limpia, todos sus vecinos canjean más barato).</p>
+      <div class="pillars">
+        <span class="pill"><svg class="icon sm"><use href="#i-map"/></svg>Mapa semáforo</span>
+        <span class="pill"><svg class="icon sm"><use href="#i-broom"/></svg>Limpieza guiada en 3 pasos</span>
+        <span class="pill"><svg class="icon sm"><use href="#i-sprout"/></svg>Mascota y rachas</span>
+        <span class="pill"><svg class="icon sm"><use href="#i-ticket"/></svg>Cupones por nivel</span>
+      </div>
+    </div>
+    <div class="hero-stage" aria-label="Vista previa: tres estados del mapa alrededor de la Zona Principal">
+      <svg class="streets" aria-hidden="true"><use href="#mapbase"/></svg>
+      <div class="mk verde" style="left:50%;top:44%"><span class="mk-shape"><svg class="icon"><use href="#i-check"/></svg></span><span class="mk-label">Limpio</span></div>
+      <div class="mk amarillo" style="left:22%;top:66%"><span class="mk-shape"><svg class="icon"><use href="#i-alert"/></svg></span><span class="mk-label">Basura notoria</span></div>
+      <div class="mk rojo" style="left:82%;top:26%"><span class="mk-shape"><svg class="icon"><use href="#i-truck"/></svg></span><span class="mk-label">Crítico</span></div>
+      <svg viewBox="0 0 120 120" style="position:absolute;right:14px;bottom:10px;width:92px;height:92px" role="img" aria-label="Mascota YapiVerde"><use href="#pet"/></svg>
+    </div>
+  </div>
+
+  <div class="decisions">
+    <div class="panel soft">
+      <h3>Dirección recomendada: “Cuadra viva”</h3>
+      <p style="font-size:15px">Cercana y optimista, con fondos claros para usarse en la calle. El morado lleva la marca y la progresión (XP, navegación); el verde lleva la acción ambiental (limpiar, zona limpia). Amarillo y rojo solo aparecen como estados del mapa. La mascota es un brote original, YapiVerde, que acompaña sin infantilizar: formas redondeadas, pero tipografía y textos adultos.</p>
+    </div>
+    <div class="panel soft">
+      <h3>Decisiones para aprobar hoy</h3>
+      <ol class="diff-list">
+        <li><b>Paleta</b> morado + verde con amarillo y rojo reservados al mapa.</li>
+        <li><b>Figtree</b> como única familia; sistema como respaldo.</li>
+        <li><b>XP</b> = hexágono morado, <b>monedas</b> = círculo turquesa.</li>
+        <li><b>Marcadores</b> con forma + icono + texto, no solo color.</li>
+        <li><b>Mascota YapiVerde</b> (brote original).</li>
+      </ol>
+    </div>
+    <div class="panel" style="border-color:#E8C9C8;background:#FFFBFB">
+      <h3>Diferencias detectadas en los documentos</h3>
+      <ol class="diff-list" style="font-size:14px">
+        <li><b>XP de nivel:</b> el wireframe muestra “450 / 600 XP” en Nv.3; MVP_Guia fija 0/150/400/800. Aquí: 450 / 800 XP.</li>
+        <li><b>“Sigue sucio” a 80 m:</b> el wireframe lo muestra activo a 80 m; la regla es &lt; 50 m. Aquí aparece deshabilitado con el motivo.</li>
+        <li><b>Racha de zona:</b> el wireframe dice “5 días”; MVP_Guia la define semanal. Aquí: racha personal en días y racha de zona en semanas.</li>
+        <li><b>Abreviatura “M”:</b> “120 M” se confunde con metros (“80 m”). Aquí: “monedas” con icono propio.</li>
+        <li><b>Barrio Ejemplar:</b> propuesta_mejorada dice 7 días en verde; MVP_Guia dice más de 2 semanas. Se sigue MVP_Guia.</li>
+        <li>propuesta_mejorada menciona 30 m para limpiar y un tope de 2 misiones pagadas al día; no están en MVP_Guia y no se muestran.</li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= B ======================= -->
+<section class="board" id="b" aria-labelledby="b-t">
+  <div class="board-head">
+    <h2 id="b-t"><span class="letter">B</span>Referencias revisadas</h2>
+    <p>Seis fuentes públicas consultadas el 17/11/2026. No se incrustan capturas de terceros; cada tarjeta enlaza la página exacta y describe lo observado.</p>
+  </div>
+  <div class="grid3">
+    <article class="panel ref">
+      <div class="ref-top"><h3>Yape Promos</h3><span class="ref-kind">Cupones</span></div>
+      <a class="url" href="https://www.yape.com.pe/productos/yape-promos" target="_blank" rel="noopener">yape.com.pe/productos/yape-promos</a>
+      <dl>
+        <dt>Patrón observado</dt><dd>Tarjeta de promo con imagen del comercio, etiqueta de canal (“Compra en local”, “Compra en línea”), precio promocional con el original tachado y enlace “Conocer promo”. Cabecera con degradado morado-magenta y botón turquesa.</dd>
+        <dt>Qué nos sirve</dt><dd>La tarjeta de cupón y el precio tachado.</dd>
+        <dt>Adaptación</dt><dd>El costo en monedas aparece tachado cuando aplica Barrio Ejemplar (40 → 30). La etiqueta de canal pasa a ser el nivel requerido. Morado por familiaridad, sin copiar códigos ni logotipos de Yape.</dd>
+      </dl>
+      <p class="shot">Captura: vista en navegador, no incluida (contenido de terceros).</p>
+    </article>
+    <article class="panel ref">
+      <div class="ref-top"><h3>Duolingo, hitos de racha</h3><span class="ref-kind">Mascota</span></div>
+      <a class="url" href="https://blog.duolingo.com/streak-milestone-design-animation" target="_blank" rel="noopener">blog.duolingo.com/streak-milestone-design-animation</a>
+      <dl>
+        <dt>Patrón observado</dt><dd>En cada hito (semana, mes, 100 días) la mascota se transforma; antes solo sostenía globos con el número. Incluye una tarjeta para compartir el logro.</dd>
+        <dt>Qué nos sirve</dt><dd>Celebración ligada a un cambio de la mascota y tarjeta para compartir.</dd>
+        <dt>Adaptación</dt><dd>A YapiVerde le crece una hoja al subir de nivel. Al cerrar una semana de racha de zona se puede compartir “Mi cuadra lleva 3 semanas en verde”, que alimenta el contagio.</dd>
+      </dl>
+      <p class="shot">Captura: no incluida (ilustraciones de Duolingo).</p>
+    </article>
+    <article class="panel ref">
+      <div class="ref-top"><h3>Mobbin, estudio de 859 rachas</h3><span class="ref-kind">Rachas</span></div>
+      <a class="url" href="https://mobbin.com/blog/streaks-are-about-losing-a-study-of-859-streak-designs" target="_blank" rel="noopener">mobbin.com/blog/streaks-are-about-losing…</a>
+      <dl>
+        <dt>Patrón observado</dt><dd>Protectores de racha (Duolingo), reparar días perdidos (Finch), pausas tipo vacaciones (Alma). El artículo cita que una meta más baja retuvo más rachas de 7 días y advierte del texto culpabilizador.</dd>
+        <dt>Qué nos sirve</dt><dd>El Escudo como protector y una meta semanal baja.</dd>
+        <dt>Adaptación</dt><dd>Racha de zona = 1 aporte por semana. El Escudo (Nv.2) protege 1 día de racha personal. Textos que invitan, sin culpa.</dd>
+      </dl>
+      <p class="shot">Captura: no incluida.</p>
+    </article>
+    <article class="panel ref">
+      <div class="ref-top"><h3>Streaks (Crunchy Bagel)</h3><span class="ref-kind">Hábitos</span></div>
+      <a class="url" href="https://apps.apple.com/us/app/streaks/id963034692" target="_blank" rel="noopener">apps.apple.com/us/app/streaks/id963034692</a>
+      <dl>
+        <dt>Patrón observado</dt><dd>Hábitos con frecuencia diaria, en días concretos o metas por semana (“3 entrenamientos a la semana”). Iconos grandes por hábito y un tema especial cuando se completa todo.</dd>
+        <dt>Qué nos sirve</dt><dd>Meta semanal con días visibles.</dd>
+        <dt>Adaptación</dt><dd>Tira semanal L–D en la tarjeta de racha de zona. El día con aporte se rellena en blanco sobre morado.</dd>
+      </dl>
+      <p class="shot">Captura: no incluida (ficha de App Store).</p>
+    </article>
+    <article class="panel ref">
+      <div class="ref-top"><h3>Google Maps Platform, marcadores HTML</h3><span class="ref-kind">Mapa</span></div>
+      <a class="url" href="https://developers.google.com/maps/documentation/javascript/advanced-markers/html-markers" target="_blank" rel="noopener">developers.google.com/…/advanced-markers/html-markers</a>
+      <dl>
+        <dt>Patrón observado</dt><dd>Marcadores con icono cuyo color depende del tipo de lugar. Al tocar uno se expande en una tarjeta con el detalle, y el elegido pasa al frente.</dd>
+        <dt>Qué nos sirve</dt><dd>Un marcador que se convierte en detalle, con estado seleccionado.</dd>
+        <dt>Adaptación</dt><dd>El ejemplo distingue solo por color; aquí añadimos forma (círculo, rombo, octógono), icono y texto. El detalle se abre en una hoja inferior con las acciones permitidas.</dd>
+      </dl>
+      <p class="shot">Captura: no incluida.</p>
+    </article>
+    <article class="panel ref">
+      <div class="ref-top"><h3>Starbucks Rewards</h3><span class="ref-kind">Recompensas</span></div>
+      <a class="url" href="https://about.starbucks.com/starbucks-rewards-faq/" target="_blank" rel="noopener">about.starbucks.com/starbucks-rewards-faq</a>
+      <dl>
+        <dt>Patrón observado</dt><dd>Estados Green, Gold y Reserve con beneficios por estado. Canjes por umbrales (60, 100 y 200 estrellas). Las preguntas frecuentes separan el estado del saldo (“Does redeeming Stars impact my status?”).</dd>
+        <dt>Qué nos sirve</dt><dd>Separar el nivel del saldo y mostrar beneficios bloqueados por estado.</dd>
+        <dt>Adaptación</dt><dd>Nivel por XP (nunca se gasta) y monedas como saldo canjeable. El cupón bloqueado dice qué nivel pide y cuánta XP falta.</dd>
+      </dl>
+      <p class="shot">Captura: no incluida.</p>
+    </article>
+  </div>
+</section>
+
+<!-- ======================= C ======================= -->
+<section class="board" id="c" aria-labelledby="c-t">
+  <div class="board-head">
+    <h2 id="c-t"><span class="letter">C</span>Paleta, tipografía y tokens</h2>
+    <p>Colores propios del prototipo. No son los oficiales de Yape. Toca una muestra para copiar su código.</p>
+  </div>
+
+  <h3 class="group-title" style="margin-top:0">Marca y acción</h3>
+  <div class="swatches">
+    <button class="sw" data-hex="#6B2FA6"><div class="chip" style="background:#6B2FA6;color:#fff">Aa 7.6:1</div><div class="meta"><b>Morado barrio</b><span class="hex">#6B2FA6</span><br>Botón principal, XP, pestaña activa</div></button>
+    <button class="sw" data-hex="#3F1A63"><div class="chip" style="background:#3F1A63;color:#fff">Aa</div><div class="meta"><b>Morado noche</b><span class="hex">#3F1A63</span><br>Sombra de botón, texto sobre morado claro</div></button>
+    <button class="sw" data-hex="#F1E9FA"><div class="chip" style="background:#F1E9FA;color:#3F1A63">Aa</div><div class="meta"><b>Lila suave</b><span class="hex">#F1E9FA</span><br>Avisos de misión, fondo del saldo XP</div></button>
+    <button class="sw" data-hex="#1F8A4C"><div class="chip" style="background:#1F8A4C;color:#fff">Aa 4.7:1</div><div class="meta"><b>Verde acción</b><span class="hex">#1F8A4C</span><br>“Limpiar zona”, zona limpia, éxito</div></button>
+    <button class="sw" data-hex="#E3F4E8"><div class="chip" style="background:#E3F4E8;color:#135A31">Aa</div><div class="meta"><b>Verde suave</b><span class="hex">#E3F4E8</span><br>Confirmaciones, etiqueta “Limpio”</div></button>
+    <button class="sw" data-hex="#0B7A75"><div class="chip" style="background:#0B7A75;color:#fff">Aa 5.3:1</div><div class="meta"><b>Turquesa moneda</b><span class="hex">#0B7A75</span><br>Solo monedas y canje</div></button>
+  </div>
+
+  <h3 class="group-title">Estados del mapa (reservados)</h3>
+  <div class="swatches">
+    <button class="sw" data-hex="#1F8A4C"><div class="chip" style="background:#1F8A4C;color:#fff">Círculo + ✓</div><div class="meta"><b>Verde, limpio</b><span class="hex">#1F8A4C</span><br>Forma: círculo. Texto: “Limpio”</div></button>
+    <button class="sw" data-hex="#F2B705"><div class="chip" style="background:#F2B705;color:#3A2A00">Rombo + !</div><div class="meta"><b>Amarillo, basura notoria</b><span class="hex">#F2B705</span> con texto <span class="hex">#3A2A00</span><br>Solo como relleno, nunca como texto</div></button>
+    <button class="sw" data-hex="#C9302C"><div class="chip" style="background:#C9302C;color:#fff">Octógono + camión</div><div class="meta"><b>Rojo, crítico</b><span class="hex">#C9302C</span><br>Se deriva a municipalidad o brigada</div></button>
+    <button class="sw" data-hex="#1D1530"><div class="chip" style="background:#1D1530;color:#fff">Cuadrado + QR</div><div class="meta"><b>Tinta, tacho QR</b><span class="hex">#1D1530</span><br>También es el color del texto principal</div></button>
+  </div>
+
+  <h3 class="group-title">Neutros</h3>
+  <div class="swatches">
+    <button class="sw" data-hex="#433C52"><div class="chip" style="background:#433C52;color:#fff">Aa</div><div class="meta"><b>Texto</b><span class="hex">#433C52</span><br>Cuerpo (10.6:1 sobre blanco)</div></button>
+    <button class="sw" data-hex="#6B6580"><div class="chip" style="background:#6B6580;color:#fff">Aa</div><div class="meta"><b>Apagado</b><span class="hex">#6B6580</span><br>Textos de apoyo (5.6:1)</div></button>
+    <button class="sw" data-hex="#E4DEEC"><div class="chip" style="background:#E4DEEC;color:#1D1530">Aa</div><div class="meta"><b>Línea</b><span class="hex">#E4DEEC</span><br>Bordes y divisores</div></button>
+    <button class="sw" data-hex="#F6F4F9"><div class="chip" style="background:#F6F4F9;color:#1D1530;border-bottom:1px solid #E4DEEC">Aa</div><div class="meta"><b>Fondo</b><span class="hex">#F6F4F9</span><br>Fondo de pantalla; tarjetas en blanco</div></button>
+  </div>
+
+  <div class="grid2" style="margin-top:28px">
+    <div class="panel">
+      <h3>Tipografía: Figtree</h3>
+      <p class="note" style="margin-bottom:8px">Google Fonts, licencia OFL. Aberturas amplias y números claros para leer bajo el sol. Respaldo: “Segoe UI”, Roboto, system-ui. Se descartó la sugerencia Baloo 2 + Comic Neue del catálogo de ui-ux-pro-max por verse infantil.</p>
+      <div class="type-row"><span class="spec">Título pantalla<br>24/28 · 800</span><span style="font-size:24px;font-weight:800;color:var(--tinta);line-height:28px">Tu zona está en verde</span></div>
+      <div class="type-row"><span class="spec">Título tarjeta<br>18/24 · 700</span><span style="font-size:18px;font-weight:700;color:var(--tinta)">Jr. Las Flores #14</span></div>
+      <div class="type-row"><span class="spec">Cuerpo<br>16/24 · 400–500</span><span style="font-size:16px">Toma la foto Antes, escanea el tacho y termina con la foto Después.</span></div>
+      <div class="type-row"><span class="spec">Apoyo<br>14/20 · 500</span><span style="font-size:14px;font-weight:500;color:var(--apagado)">Reportado hace 2 h por un vecino</span></div>
+      <div class="type-row"><span class="spec">Etiqueta (mínimo)<br>12/16 · 700</span><span style="font-size:12px;font-weight:700;color:var(--tinta)">Basura notoria</span></div>
+      <div class="type-row"><span class="spec">Cifras<br>26 · 800 tabular</span><span style="font-size:26px;font-weight:800;color:var(--morado-700);font-variant-numeric:tabular-nums">450 XP <span style="color:var(--turquesa-700)">120</span></span></div>
+    </div>
+    <div class="panel">
+      <h3>Espaciado, radios, sombras e iconos</h3>
+      <table class="tokens-table">
+        <tr><th>Token</th><th>Valor</th><th>Uso</th></tr>
+        <tr><td>Espaciado</td><td>4 · 8 · 12 · 16 · 24 · 32 · 48</td><td>Base de 4 px; 14–16 px de margen lateral en móvil</td></tr>
+        <tr><td>Toque</td><td>mín. 44–48 px</td><td>Botones, marcadores y pestañas</td></tr>
+        <tr><td>Bordes</td><td>1 px #E4DEEC</td><td>Tarjetas sobre fondo blanco; sobre fondo lila, sin borde</td></tr>
+        <tr><td>Sombra 1</td><td>0 1 2 / 8%</td><td>Tarjetas</td></tr>
+        <tr><td>Sombra 2</td><td>0 8 24 / 12%</td><td>Hoja inferior y elementos flotantes</td></tr>
+        <tr><td>Botón</td><td>sombra sólida 3 px</td><td>Le da “relieve” al botón principal, sin degradados</td></tr>
+      </table>
+      <div class="radius-demo" style="margin-top:14px" aria-label="Radios">
+        <div style="border-radius:8px">8</div><div style="border-radius:12px">12</div><div style="border-radius:16px">16</div><div style="border-radius:24px">24</div><div style="border-radius:999px">pill</div>
+      </div>
+      <p class="note" style="margin-top:6px">8 etiquetas pequeñas · 12 botones · 16 tarjetas · 24 hojas inferiores · pill para chips. A más jerarquía, más radio.</p>
+      <h3 style="margin-top:16px">Iconografía</h3>
+      <p class="note" style="margin-bottom:8px">Trazo de 2 px con terminaciones redondas, 20–24 px y siempre con texto al lado. No se usan emojis como iconos.</p>
+      <div class="icon-grid">
+        <div><svg class="icon"><use href="#i-map"/></svg>Mapa</div>
+        <div><svg class="icon"><use href="#i-broom"/></svg>Limpiar</div>
+        <div><svg class="icon"><use href="#i-sprout"/></svg>Mascota</div>
+        <div><svg class="icon"><use href="#i-ticket"/></svg>Cupones</div>
+        <div><svg class="icon"><use href="#i-qr"/></svg>Tacho QR</div>
+        <div><svg class="icon"><use href="#i-camera"/></svg>Foto</div>
+        <div><svg class="icon"><use href="#i-flame"/></svg>Racha</div>
+        <div><svg class="icon"><use href="#i-shield"/></svg>Escudo</div>
+        <div><svg class="icon"><use href="#i-users"/></svg>Brigada</div>
+        <div><svg class="icon"><use href="#i-building"/></svg>Muni</div>
+        <div><svg class="icon"><use href="#i-home"/></svg>Zona</div>
+        <div><svg class="icon"><use href="#i-lock"/></svg>Bloqueado</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= D ======================= -->
+<section class="board" id="d" aria-labelledby="d-t">
+  <div class="board-head">
+    <h2 id="d-t"><span class="letter">D</span>Componentes</h2>
+    <p>Las piezas que usan las pantallas. Cada estado del mapa se reconoce por forma, icono y texto, no solo por el color.</p>
+  </div>
+  <div class="grid3">
+    <div class="panel">
+      <h3>Botones</h3>
+      <div style="display:grid;gap:10px">
+        <button class="btn btn-primary full"><svg class="icon"><use href="#i-plus"/></svg>Reportar basura</button>
+        <button class="btn btn-clean full"><svg class="icon"><use href="#i-broom"/></svg>Limpiar zona</button>
+        <button class="btn btn-secondary full">Ya está limpio</button>
+        <div>
+          <button class="btn full" aria-disabled="true" aria-describedby="h1">Sigue sucio</button>
+          <p class="btn-help" id="h1"><svg class="icon sm"><use href="#i-pin"/></svg>Acércate a menos de 50 m. Ahora estás a 80 m.</p>
+        </div>
+        <button class="btn btn-ghost">Ver misiones cerca</button>
+      </div>
+      <p class="note" style="margin-top:10px">Morado = acción general, verde = acción de limpieza. Un botón deshabilitado siempre explica por qué.</p>
+    </div>
+
+    <div class="panel">
+      <h3>Marcadores y leyenda</h3>
+      <div class="static-markers" style="padding:8px 0 12px">
+        <div class="mk verde"><span class="mk-shape"><svg class="icon"><use href="#i-check"/></svg></span><span class="mk-label">Limpio</span></div>
+        <div class="mk amarillo"><span class="mk-shape"><svg class="icon"><use href="#i-alert"/></svg></span><span class="mk-label">Basura notoria</span></div>
+        <div class="mk rojo"><span class="mk-shape"><svg class="icon"><use href="#i-truck"/></svg></span><span class="mk-label">Crítico</span></div>
+        <div class="mk tacho"><span class="mk-shape"><svg class="icon"><use href="#i-qr"/></svg></span><span class="mk-label">Tacho QR</span></div>
+        <div class="mk amarillo mine"><span class="mk-shape"><svg class="icon"><use href="#i-alert"/></svg></span><span class="mk-label">Tu reporte</span></div>
+      </div>
+      <div class="legend"><span><i class="lg v"></i>Limpio</span><span><i class="lg a"></i>Basura notoria</span><span><i class="lg r"></i>Crítico</span><span><i class="lg t"></i>Tacho QR</span></div>
+      <p class="note" style="margin-top:10px">Círculo, rombo y octógono se distinguen en escala de grises y con daltonismo. El reporte propio lleva la etiqueta en tinta.</p>
+    </div>
+
+    <div class="panel">
+      <h3>XP frente a monedas</h3>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
+        <span class="balance xp"><svg class="xp-ico"><use href="#i-xp"/></svg>450 XP</span>
+        <span class="balance coin"><svg class="coin-ico"><use href="#i-coin"/></svg>120 monedas</span>
+      </div>
+      <table class="tokens-table">
+        <tr><th></th><th>XP</th><th>Monedas</th></tr>
+        <tr><td>Forma</td><td>Hexágono con rayo</td><td>Círculo con canto</td></tr>
+        <tr><td>Color</td><td>Morado</td><td>Turquesa</td></tr>
+        <tr><td>Para qué</td><td>Subir de nivel; solo acumula</td><td>Canjear cupones; se gasta</td></tr>
+        <tr><td>Se muestra</td><td>Barra de progreso</td><td>Saldo numérico</td></tr>
+      </table>
+      <p class="note" style="margin-top:8px">Se escribe “monedas” completo; “M” se confunde con metros.</p>
+    </div>
+
+    <div class="panel">
+      <h3>Progreso de nivel</h3>
+      <div style="display:flex;justify-content:space-between;font-size:14px;font-weight:700;color:var(--tinta);margin-bottom:6px"><span>Nv.3 Guardián del Barrio</span><span class="xp" style="font-size:14px">450 / 800 XP</span></div>
+      <div class="xpbar" role="progressbar" aria-valuemin="400" aria-valuemax="800" aria-valuenow="450" aria-label="Progreso al nivel 4"><span style="width:12.5%"></span></div>
+      <div class="lvl-track"><span>0</span><span>150</span><span class="on">400</span><span>800</span></div>
+      <p class="note" style="margin-top:8px">La barra cuenta desde el inicio del nivel actual (400) hasta el siguiente (800). Faltan 350 XP para Leyenda Verde.</p>
+    </div>
+
+    <div class="panel">
+      <h3>Rachas</h3>
+      <div class="streaks">
+        <div class="streak personal"><span class="lbl" style="color:var(--apagado)">Tu racha</span><span class="big" style="color:var(--tinta)">6 días</span><span class="tag tag-otra" style="width:max-content"><svg class="icon sm"><use href="#i-shield"/></svg>1 Escudo</span></div>
+        <div class="streak zona"><span class="lbl">Zona Principal</span><span class="big">3 sem.</span><div class="week" aria-label="Aporte esta semana: martes"><span>L</span><span class="on">M</span><span>M</span><span>J</span><span>V</span><span>S</span><span>D</span></div></div>
+      </div>
+      <p class="note" style="margin-top:8px">Personal = diaria, en blanco. Zona Principal = semanal, en morado lleno y con icono de casa. Son dos objetos visualmente distintos.</p>
+    </div>
+
+    <div class="panel">
+      <h3>Avisos</h3>
+      <div style="display:grid;gap:8px">
+        <div class="alert alert-mision"><svg class="icon"><use href="#i-clock"/></svg><span><b>Tienes una limpieza en curso.</b> Quedan 24 min para terminarla.</span></div>
+        <div class="alert alert-ok"><svg class="icon"><use href="#i-check"/></svg><span><b>Pasaje Los Sauces ya está en verde.</b> +30 monedas, +50 XP.</span></div>
+        <div class="alert alert-regla"><svg class="icon"><use href="#i-info"/></svg><span>Este reporte es tuyo: si lo limpias ganas XP y racha, pero no monedas.</span></div>
+        <div class="alert alert-error"><svg class="icon"><use href="#i-x"/></svg><span>No pudimos leer el QR. Acerca la cámara al código del tacho.</span></div>
+        <div class="alert alert-sim"><svg class="icon"><use href="#i-info"/></svg><span>Demo: GPS, cámara, QR y canje están simulados.</span></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h3>Tarjeta de punto</h3>
+      <div class="card" style="box-shadow:none;border:1px solid var(--linea)">
+        <div style="display:flex;justify-content:space-between;gap:8px;align-items:flex-start">
+          <div><b style="color:var(--tinta)">Jr. Las Flores #14</b><div class="note">Reportado hace 2 h por un vecino</div></div>
+          <span class="tag tag-amarillo">Basura notoria</span>
+        </div>
+        <div style="display:flex;gap:6px;margin-top:10px;flex-wrap:wrap"><span class="tag tag-zona"><svg class="icon sm"><use href="#i-home"/></svg>Tu Zona Principal</span><span class="tag tag-otra">a 80 m</span></div>
+      </div>
+      <p class="note" style="margin-top:8px">Las etiquetas distinguen tu Zona Principal (lila, con casa) de otras zonas (gris).</p>
+    </div>
+
+    <div class="panel">
+      <h3>Navegación inferior</h3>
+      <div class="navbar" style="border:1px solid var(--linea);border-radius:16px;padding-bottom:6px" role="tablist" aria-label="Ejemplo de navegación">
+        <button class="nav-i" aria-current="page"><span class="nav-pill"><svg class="icon"><use href="#i-map"/></svg></span>Mapa</button>
+        <button class="nav-i"><span class="nav-pill"><svg class="icon"><use href="#i-broom"/></svg></span>Limpiar</button>
+        <button class="nav-i"><span class="nav-pill"><svg class="icon"><use href="#i-sprout"/></svg></span>Mascota</button>
+        <button class="nav-i"><span class="nav-pill"><svg class="icon"><use href="#i-ticket"/></svg></span>Cupones</button>
+      </div>
+      <p class="note" style="margin-top:8px">Las cuatro pestañas aprobadas, siempre con icono y texto. La activa usa morado y una píldora lila.</p>
+    </div>
+
+    <div class="panel">
+      <h3>Vista municipal (secundaria)</h3>
+      <div class="muni">
+        <div class="muni-row"><span><span class="tag tag-rojo">Crítico</span> <b style="color:var(--tinta)">#09 Av. Las Palmeras</b><br><span class="note">Reportado hace 1 día, 4 validaciones</span></span><button class="btn btn-secondary sm">Marcar atendido</button></div>
+        <div class="muni-row"><span><span class="tag tag-rojo">Crítico</span> <b style="color:var(--tinta)">#12 Parque Norte</b><br><span class="note">Brigada vecinal convocada</span></span><button class="btn btn-secondary sm">Marcar atendido</button></div>
+      </div>
+      <p class="note" style="margin-top:8px">Panel web solo con zonas rojas. Misma paleta, más denso y sin gamificación.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= E ======================= -->
+<section class="board" id="e" aria-labelledby="e-t">
+  <div class="board-head">
+    <h2 id="e-t"><span class="letter">E</span>Pantallas de alta fidelidad</h2>
+    <p>Mapa, misión de limpieza y mascota. Son interactivas: toca los marcadores, avanza los pasos y usa los interruptores de abajo.</p>
+  </div>
+  <div class="demo-controls">
+    <label class="switch"><input type="checkbox" id="sw-ejemplar" checked />Barrio Ejemplar activo</label>
+    <label class="switch"><input type="checkbox" id="sw-mine" />La misión limpia mi propio reporte</label>
+    <span class="tag tag-sim">GPS, cámara, QR y canje simulados</span>
+  </div>
+
+  <div class="phones">
+    <!-- ===== Pantalla 1: Mapa ===== -->
+    <div class="phone-wrap">
+      <p class="phone-cap">1. Mapa principal<small>Toca un marcador para ver su detalle.</small></p>
+      <div class="phone"><div class="screen">
+        <div class="statusbar"><span>9:41</span><span>Yape</span></div>
+        <div class="yape-strip"><span class="back"><svg class="icon sm"><use href="#i-back"/></svg></span>Mi Barrio Verde<button class="btn btn-secondary sm" style="margin-left:auto;min-height:32px;padding:4px 10px;font-size:12px">Vista Muni</button></div>
+        <div class="scroll">
+          <div class="zone-head">
+            <div>
+              <div class="z-name">Parque Los Jardines</div>
+              <div class="z-sub"><svg class="icon sm"><use href="#i-home"/></svg>Tu Zona Principal: 3 semanas</div>
+            </div>
+            <div class="mini-bal"><span class="xp" style="font-size:14px"><svg class="xp-ico"><use href="#i-xp"/></svg>Nv.3</span><span class="coin" style="font-size:14px"><svg class="coin-ico"><use href="#i-coin"/></svg>120</span></div>
+          </div>
+          <div class="alert alert-mision" style="align-items:center;padding:8px 8px 8px 12px">
+            <svg class="icon"><use href="#i-clock"/></svg>
+            <span style="flex:1"><b>Limpieza en curso</b><br>Quedan 24 min</span>
+            <a href="#scr-mision" class="btn btn-primary sm" style="text-decoration:none">Continuar</a>
+          </div>
+          <div class="map" id="map">
+            <svg class="base" aria-hidden="true"><use href="#mapbase"/></svg>
+            <div class="me" style="left:44%;top:56%" aria-label="Tu ubicación (simulada)"></div>
+            <button class="mk amarillo" data-id="p14" style="left:22%;top:66%" aria-pressed="true"><span class="mk-shape"><svg class="icon"><use href="#i-alert"/></svg></span><span class="mk-label">#14</span></button>
+            <button class="mk amarillo" data-id="p17" style="left:56%;top:68%" aria-pressed="false"><span class="mk-shape"><svg class="icon"><use href="#i-alert"/></svg></span><span class="mk-label">#17</span></button>
+            <button class="mk amarillo mine" data-id="p19" style="left:76%;top:46%" aria-pressed="false"><span class="mk-shape"><svg class="icon"><use href="#i-alert"/></svg></span><span class="mk-label">Tu reporte</span></button>
+            <button class="mk verde" data-id="v01" style="left:50%;top:34%" aria-pressed="false"><span class="mk-shape"><svg class="icon"><use href="#i-check"/></svg></span><span class="mk-label">Parque</span></button>
+            <button class="mk rojo" data-id="r09" style="left:86%;top:14%" aria-pressed="false"><span class="mk-shape"><svg class="icon"><use href="#i-truck"/></svg></span><span class="mk-label">#09</span></button>
+            <button class="mk tacho" data-id="t03" style="left:28%;top:20%" aria-pressed="false"><span class="mk-shape"><svg class="icon"><use href="#i-qr"/></svg></span><span class="mk-label">Tacho</span></button>
+            <div class="map-legend"><div class="legend"><span><i class="lg v"></i>Limpio</span><span><i class="lg a"></i>Basura</span><span><i class="lg r"></i>Crítico</span><span><i class="lg t"></i>Tacho QR</span></div></div>
+          </div>
+          <div class="sheet" id="sheet" aria-live="polite"></div>
+          <button class="btn btn-primary full"><svg class="icon"><use href="#i-plus"/></svg>Reportar basura</button>
+        </div>
+        <nav class="navbar" aria-label="Navegación de la app">
+          <button class="nav-i" aria-current="page"><span class="nav-pill"><svg class="icon"><use href="#i-map"/></svg></span>Mapa</button>
+          <button class="nav-i"><span class="nav-pill"><svg class="icon"><use href="#i-broom"/></svg></span>Limpiar</button>
+          <button class="nav-i"><span class="nav-pill"><svg class="icon"><use href="#i-sprout"/></svg></span>Mascota</button>
+          <button class="nav-i"><span class="nav-pill"><svg class="icon"><use href="#i-ticket"/></svg></span>Cupones</button>
+        </nav>
+      </div></div>
+    </div>
+
+    <!-- ===== Pantalla 2: Misión ===== -->
+    <div class="phone-wrap" id="scr-mision">
+      <p class="phone-cap">2. Misión de limpieza<small>Un paso por pantalla. Usa “Siguiente” y “Atrás”.</small></p>
+      <div class="phone"><div class="screen">
+        <div class="statusbar"><span>9:41</span><span>Yape</span></div>
+        <div class="yape-strip"><span class="back"><svg class="icon sm"><use href="#i-back"/></svg></span>Limpiar zona</div>
+        <div class="scroll" id="mission"></div>
+        <nav class="navbar" aria-label="Navegación de la app">
+          <button class="nav-i"><span class="nav-pill"><svg class="icon"><use href="#i-map"/></svg></span>Mapa</button>
+          <button class="nav-i" aria-current="page"><span class="nav-pill"><svg class="icon"><use href="#i-broom"/></svg></span>Limpiar</button>
+          <button class="nav-i"><span class="nav-pill"><svg class="icon"><use href="#i-sprout"/></svg></span>Mascota</button>
+          <button class="nav-i"><span class="nav-pill"><svg class="icon"><use href="#i-ticket"/></svg></span>Cupones</button>
+        </nav>
+      </div></div>
+    </div>
+
+    <!-- ===== Pantalla 3: Mascota ===== -->
+    <div class="phone-wrap">
+      <p class="phone-cap">3. Mascota, progreso y misiones<small>Nivel por XP, rachas separadas y Barrio Ejemplar.</small></p>
+      <div class="phone"><div class="screen">
+        <div class="statusbar"><span>9:41</span><span>Yape</span></div>
+        <div class="yape-strip"><span class="back"><svg class="icon sm"><use href="#i-back"/></svg></span>Tu mascota</div>
+        <div class="scroll">
+          <div class="pet-card">
+            <div class="pet-top">
+              <svg viewBox="0 0 120 120" role="img" aria-label="YapiVerde, mascota en nivel 3"><use href="#pet"/></svg>
+              <div>
+                <p class="note" style="font-weight:700">YapiVerde</p>
+                <p class="lvl-name">Nv.3 Guardián del Barrio</p>
+                <p class="note">Desbloqueado: Boost x2 en tu zona</p>
+              </div>
+            </div>
+            <div>
+              <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:700;color:var(--tinta);margin-bottom:6px"><span>Hacia Nv.4 Leyenda Verde</span><span class="xp" style="font-size:13px">450 / 800 XP</span></div>
+              <div class="xpbar" role="progressbar" aria-valuemin="400" aria-valuemax="800" aria-valuenow="450" aria-label="Progreso al nivel 4"><span style="width:12.5%"></span></div>
+              <div class="lvl-track"><span>Nv.1 0</span><span>Nv.2 150</span><span class="on">Nv.3 400</span><span>Nv.4 800</span></div>
+            </div>
+            <div style="display:flex;gap:6px;flex-wrap:wrap">
+              <span class="balance xp"><svg class="xp-ico"><use href="#i-xp"/></svg>450 XP</span>
+              <span class="balance coin"><svg class="coin-ico"><use href="#i-coin"/></svg>120 monedas</span>
+            </div>
+            <p class="note" style="font-size:13px">Canjear monedas no baja tu XP ni tu nivel.</p>
+          </div>
+
+          <div class="card">
+            <h5>Rachas</h5>
+            <div class="streaks">
+              <div class="streak personal"><span class="lbl" style="color:var(--apagado);display:flex;gap:4px;align-items:center"><svg class="icon sm"><use href="#i-flame"/></svg>Tu racha</span><span class="big" style="color:var(--tinta)">6 días</span><span class="tag tag-otra" style="width:max-content"><svg class="icon sm"><use href="#i-shield"/></svg>1 Escudo</span></div>
+              <div class="streak zona"><span class="lbl" style="display:flex;gap:4px;align-items:center"><svg class="icon sm"><use href="#i-home"/></svg>Los Jardines</span><span class="big">3 sem.</span><div class="week" aria-label="Aporte de esta semana hecho el martes"><span>L</span><span class="on">M</span><span>M</span><span>J</span><span>V</span><span>S</span><span>D</span></div></div>
+            </div>
+            <div class="alert alert-regla" style="margin-top:8px;font-size:13px"><svg class="icon sm"><use href="#i-pin"/></svg><span><b>Otras zonas esta semana: 2 aportes</b> cerca de UPN. Suman XP y monedas, pero no la racha de Los Jardines.</span></div>
+          </div>
+
+          <div class="card">
+            <h5>Misiones de la semana</h5>
+            <div class="quest done"><span class="chk"><svg class="icon sm"><use href="#i-check"/></svg></span><span>Valida 3 reportes con “Sigue sucio”<div class="qbar"><span style="width:100%"></span></div></span><span class="xp" style="font-size:13px" data-xp="45">+45 XP</span></div>
+            <div class="quest"><span class="chk"></span><span>Limpia 1 zona amarilla<div class="qbar"><span style="width:0%"></span></div></span><span class="xp" style="font-size:13px" data-xp="50">+50 XP</span></div>
+            <div class="quest done"><span class="chk"><svg class="icon sm"><use href="#i-check"/></svg></span><span>1 aporte en tu Zona Principal<div class="qbar"><span style="width:100%"></span></div></span><span class="tag tag-zona">Racha</span></div>
+          </div>
+
+          <div class="ejemplar" id="ejemplar-card">
+            <span class="seal"><svg class="icon"><use href="#i-star"/></svg></span>
+            <div>
+              <b style="color:var(--tinta)" id="ej-title">Barrio Ejemplar activo</b>
+              <p class="note" style="font-size:13px" id="ej-text">Los Jardines lleva más de 2 semanas en verde: tus cupones cuestan 25% menos monedas y ganas x1.5 XP en misiones.</p>
+            </div>
+          </div>
+        </div>
+        <nav class="navbar" aria-label="Navegación de la app">
+          <button class="nav-i"><span class="nav-pill"><svg class="icon"><use href="#i-map"/></svg></span>Mapa</button>
+          <button class="nav-i"><span class="nav-pill"><svg class="icon"><use href="#i-broom"/></svg></span>Limpiar</button>
+          <button class="nav-i" aria-current="page"><span class="nav-pill"><svg class="icon"><use href="#i-sprout"/></svg></span>Mascota</button>
+          <button class="nav-i"><span class="nav-pill"><svg class="icon"><use href="#i-ticket"/></svg></span>Cupones</button>
+        </nav>
+      </div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= F ======================= -->
+<section class="board" id="f" aria-labelledby="f-t">
+  <div class="board-head">
+    <h2 id="f-t"><span class="letter">F</span>Cupones: disponible y bloqueado</h2>
+    <p>Saldo de 120 monedas, Nv.3. El interruptor de Barrio Ejemplar de la sección E también cambia estos costos. El canje con Yape es una propuesta del prototipo y aquí está simulado.</p>
+  </div>
+  <div class="grid2">
+    <article class="coupon">
+      <div class="coupon-top">
+        <span class="merchant" style="background:var(--verde-100);color:#135A31">BE</span>
+        <div style="flex:1">
+          <span class="tag tag-verde" style="margin-bottom:6px">Disponible desde Nv.1</span>
+          <h4>S/ 5 de descuento en Bodega La Esquina</h4>
+          <p class="cond">En compras desde S/ 25, pagando con Yape. Válido 7 días tras el canje.</p>
+        </div>
+      </div>
+      <div class="coupon-cut"></div>
+      <div class="coupon-bot">
+        <span class="coin" style="font-size:18px"><svg class="coin-ico" style="width:22px;height:22px"><use href="#i-coin"/></svg><span class="price-old" id="c1-old">40</span><span id="c1-cost">30</span> monedas</span>
+        <button class="btn btn-primary sm" id="c1-btn">Canjear con Yape</button>
+      </div>
+      <p class="note" id="c1-note" style="padding:0 16px 14px;font-size:13px">−25% por Barrio Ejemplar. Te quedarán 90 monedas; tu XP y tu nivel no cambian.</p>
+    </article>
+
+    <article class="coupon locked">
+      <div class="coupon-top">
+        <span class="merchant" style="background:var(--morado-100);color:var(--morado-900)">BCP</span>
+        <div style="flex:1">
+          <span class="tag tag-otra" style="margin-bottom:6px"><svg class="icon sm"><use href="#i-lock"/></svg>Requiere Nv.4 Leyenda Verde</span>
+          <h4>Sorteo mensual BCP para Leyendas Verdes</h4>
+          <p class="cond">Una participación por mes. Bases del sorteo por definir con el aliado.</p>
+        </div>
+      </div>
+      <div class="coupon-cut"></div>
+      <div class="coupon-bot">
+        <span class="coin" style="font-size:18px;color:var(--apagado)"><svg class="coin-ico" style="width:22px;height:22px;filter:grayscale(1)"><use href="#i-coin"/></svg><span class="price-old" id="c2-old">80</span><span id="c2-cost">60</span> monedas</span>
+        <button class="btn sm" aria-disabled="true" aria-describedby="c2-why">Bloqueado</button>
+      </div>
+      <div style="padding:0 16px 16px">
+        <div class="lockbar" id="c2-why"><svg class="icon sm"><use href="#i-xp"/></svg>Te faltan 350 XP. Las monedas no sirven para subir de nivel.</div>
+        <div class="xpbar" style="margin-top:8px;height:8px" aria-hidden="true"><span style="width:12.5%"></span></div>
+      </div>
+    </article>
+  </div>
+</section>
+</main>
+
+<footer>
+  Tablero de diseño para aprobación. La estructura de wireframes.html no se modificó. Mascota, iconos y paleta son originales del prototipo; Yape, BCP, Duolingo, Google, Starbucks y Streaks pertenecen a sus dueños.
+</footer>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function(){
+  const $ = (s,el=document)=>el.querySelector(s);
+  const $$ = (s,el=document)=>[...el.querySelectorAll(s)];
+  const state = { ejemplar:true, mine:false, step:2 };
+
+  function toast(msg){
+    const t=$('#toast'); t.textContent=msg; t.classList.add('show');
+    clearTimeout(t._h); t._h=setTimeout(()=>t.classList.remove('show'),2200);
+  }
+
+  /* Copiar HEX */
+  $$('.sw').forEach(b=>b.addEventListener('click',()=>{
+    const hex=b.dataset.hex;
+    if(navigator.clipboard){navigator.clipboard.writeText(hex).then(()=>toast(hex+' copiado'),()=>toast(hex));}
+    else toast(hex);
+  }));
+
+  const ico = id => `<svg class="icon sm"><use href="#${id}"/></svg>`;
+  const xp = n => `<span class="balance xp"><svg class="xp-ico"><use href="#i-xp"/></svg>+${n} XP</span>`;
+  const coin = n => `<span class="balance coin"><svg class="coin-ico"><use href="#i-coin"/></svg>+${n} monedas</span>`;
+  const xpMul = n => state.ejemplar ? Math.round(n*1.5) : n;
+
+  /* ====== Mapa: datos de puntos ====== */
+  const points = {
+    p14:{tipo:'amarillo',titulo:'Jr. Las Flores #14',dist:80,zona:true,sub:'Reportado hace 2 h por un vecino. Sin validar.'},
+    p17:{tipo:'amarillo',titulo:'Pasaje Los Sauces #17',dist:35,zona:true,sub:'Reportado hace 5 h por un vecino. Sin validar.'},
+    p19:{tipo:'amarillo',titulo:'Esquina Los Cedros #19',dist:45,zona:true,mine:true,sub:'Lo reportaste tú hace 1 h.'},
+    v01:{tipo:'verde',titulo:'Parque Los Jardines',dist:60,zona:true,sub:'Limpio desde hace 3 días.'},
+    r09:{tipo:'rojo',titulo:'Av. Las Palmeras #09',dist:210,zona:false,sub:'Desmonte y bolsas acumuladas. 4 vecinos lo confirmaron.'},
+    t03:{tipo:'tacho',titulo:'Tacho QR #T03',dist:30,zona:true,sub:'Punto de acopio del parque.'}
+  };
+  const tagFor = {verde:'<span class="tag tag-verde">Limpio</span>',amarillo:'<span class="tag tag-amarillo">Basura notoria</span>',rojo:'<span class="tag tag-rojo">Crítico</span>',tacho:'<span class="tag tag-otra">Tacho QR</span>'};
+
+  function renderSheet(id){
+    const p=points[id];
+    const zona = p.zona ? `<span class="tag tag-zona">${ico('i-home')}Tu Zona Principal</span>` : `<span class="tag tag-otra">Otra zona: no suma a tu racha</span>`;
+    let body='';
+    if(p.tipo==='amarillo'){
+      const near = p.dist < 50;
+      const photo = `<div class="photo">${ico('i-camera')}Foto del reporte <span class="tag tag-sim">simulada</span></div>`;
+      let validate;
+      if(p.mine){
+        validate = `<div class="alert alert-regla">${ico('i-info')}<span>Es tu reporte: otro vecino debe validarlo. Si lo limpias tú, ganas XP y racha, sin monedas.</span></div>`;
+      } else if(near){
+        validate = `<div class="actions two"><button class="btn btn-secondary sm" data-act="valid">Sigue sucio +15 XP</button><button class="btn btn-secondary sm" data-act="falso">Ya está limpio</button></div>`;
+      } else {
+        validate = `<div><button class="btn full sm" aria-disabled="true" aria-describedby="why">Sigue sucio</button><p class="btn-help" id="why">${ico('i-pin')}Para validar acércate a menos de 50 m. Estás a ${p.dist} m.</p></div>`;
+      }
+      const clean = near
+        ? `<button class="btn btn-clean full" data-act="limpiar">${ico('i-broom')}Limpiar zona</button>`
+        : `<button class="btn btn-secondary full" data-act="ir">${ico('i-nav')}Ir al punto (${p.dist} m)</button>`;
+      const rew = p.mine ? `<div class="reward">${xp(xpMul(50))}<span class="tag tag-otra">Sin monedas</span></div>` : `<div class="reward">${coin(30)}${xp(xpMul(50))}</div>`;
+      body = `${photo}<div><p class="note" style="margin-bottom:6px">Al limpiar:</p>${rew}</div>${validate}${clean}`;
+    } else if(p.tipo==='rojo'){
+      body = `<div class="alert alert-error" style="background:var(--rojo-100)">${ico('i-building')}<span><b>Derivado a la Municipalidad de Los Olivos.</b> Una zona crítica no se limpia sola: espera la atención o súmate a una brigada.</span></div>
+        <div><p class="note" style="margin-bottom:6px">Brigada de 3 o más personas:</p><div class="reward">${coin(60)}${xp(xpMul(100))}</div></div>
+        <button class="btn btn-secondary full" data-act="brigada">${ico('i-users')}Unirme a la brigada del sábado</button>`;
+    } else if(p.tipo==='verde'){
+      body = `<div class="alert alert-ok">${ico('i-check')}<span>Sin reportes pendientes. Si sigue limpio esta semana, tu check-in mantiene la racha de la zona.</span></div>
+        <button class="btn btn-secondary full" data-act="checkin">${ico('i-camera')}Mi cuadra sigue limpia</button>`;
+    } else {
+      body = `<p style="font-size:14px">Bota tu residuo aquí y escanea el QR. Una vez al día.</p><div class="reward">${xp(10)}<span class="tag tag-otra">0 monedas</span></div>
+        <button class="btn btn-secondary full" data-act="tacho">${ico('i-qr')}Usar tacho QR</button>`;
+    }
+    $('#sheet').innerHTML = `<span class="sheet-grab"></span>
+      <div style="display:flex;justify-content:space-between;gap:8px;align-items:flex-start"><h4>${p.titulo}</h4>${tagFor[p.tipo]}</div>
+      <p class="note" style="font-size:13px;margin-top:-4px">${p.sub}</p>
+      <div class="row">${zona}<span class="tag tag-otra">a ${p.dist} m</span></div>${body}`;
+  }
+  $$('#map .mk').forEach(m=>m.addEventListener('click',()=>{
+    $$('#map .mk').forEach(x=>x.setAttribute('aria-pressed','false'));
+    m.setAttribute('aria-pressed','true'); state.sel=m.dataset.id; renderSheet(m.dataset.id);
+  }));
+  $('#sheet').addEventListener('click',e=>{
+    const b=e.target.closest('[data-act]'); if(!b) return;
+    const msg={valid:'Validado: +15 XP. El botón desaparece para los demás.',falso:'Marcado como limpio o falso. No se premia al reportador.',limpiar:'Abre la misión de limpieza (pantalla 2).',ir:'Navegación simulada hacia el punto.',brigada:'Inscripción a brigada simulada.',checkin:'Check-in semanal simulado.',tacho:'Escaneo de QR simulado: +10 XP.'}[b.dataset.act];
+    toast(msg);
+    if(b.dataset.act==='limpiar') $('#scr-mision').scrollIntoView({behavior:'smooth',block:'start'});
+  });
+  state.sel='p14'; renderSheet('p14');
+
+  /* ====== Misión ====== */
+  function renderMission(){
+    const s=state.step;
+    const steps=['Foto Antes','QR del tacho','Foto Después'];
+    const stepper=`<div class="stepper" aria-label="Paso ${Math.min(s,3)} de 3">${steps.map((t,i)=>{const n=i+1;const cls=n<s?'done':(n===s?'now':'');return `<div class="step ${cls}"><i></i>${n<s?'✓ ':''}${t}</div>`}).join('')}</div>`;
+    const head=`<div><p class="note" style="font-weight:700">Pasaje Los Sauces #17</p><p class="mission-title">${s<=3?['','Toma la foto del Antes','Escanea el QR del tacho','Toma la foto del Después'][s]:'¡Zona limpia!'}</p></div>`;
+    const timer=`<span class="timer">${ico('i-clock')}Reservada para ti: quedan 24:10</span>`;
+    const mineNote = state.mine ? `<div class="alert alert-regla">${ico('i-info')}<span>Este reporte es tuyo: ganas XP y racha, pero no monedas.</span></div>` : '';
+    let content='', nav='';
+    if(s===1){
+      content=`<div class="cam"><span class="tag tag-sim sim" style="background:transparent;color:#CFC8DB;border-color:#8A8499">Cámara simulada</span><svg class="icon" style="width:56px;height:56px;stroke-width:1.5"><use href="#i-camera"/></svg><span class="hint">Encuadra toda la basura. Solo cámara en vivo, sin galería.</span></div>`;
+      nav=`<button class="btn btn-primary full" data-m="next">${ico('i-camera')}Tomar foto Antes</button>`;
+    } else if(s===2){
+      content=`<div class="alert alert-ok" style="padding:10px 12px">${ico('i-check')}<span>Foto Antes guardada. Si cierras la app, la retomas aquí durante 30 min.</span></div>
+        <div class="cam"><span class="tag tag-sim sim" style="background:transparent;color:#CFC8DB;border-color:#8A8499">Escaneo simulado</span><span class="corner c1"></span><span class="corner c2"></span><span class="corner c3"></span><span class="corner c4"></span><svg class="icon" style="width:64px;height:64px;stroke-width:1.5;color:#fff"><use href="#i-qr"/></svg><span class="hint">Tacho QR #T03, a 40 m de aquí</span></div>`;
+      nav=`<div class="actions two"><button class="btn btn-secondary" data-m="back">Atrás</button><button class="btn btn-primary" data-m="next">${ico('i-qr')}Escanear</button></div>`;
+    } else if(s===3){
+      content=`<div class="alert alert-ok" style="padding:10px 12px">${ico('i-check')}<span>Tacho #T03 escaneado. Vuelve al punto.</span></div>
+        <div class="cam"><span class="tag tag-sim sim" style="background:transparent;color:#CFC8DB;border-color:#8A8499">Cámara simulada</span><svg class="icon" style="width:56px;height:56px;stroke-width:1.5"><use href="#i-camera"/></svg><span class="hint">Mismo lugar que la foto Antes</span></div>`;
+      nav=`<div class="actions two"><button class="btn btn-secondary" data-m="back">Atrás</button><button class="btn btn-clean" data-m="next">${ico('i-camera')}Foto Después</button></div>`;
+    } else {
+      const rew = state.mine ? `${xp(xpMul(50))}<span class="tag tag-otra">Sin monedas</span>` : `${coin(30)}${xp(xpMul(50))}`;
+      content=`<div class="celebrate"><svg viewBox="0 0 120 120" style="width:120px;height:120px" role="img" aria-label="YapiVerde celebrando"><use href="#pet"/></svg>
+        <p class="mission-title">Pasaje Los Sauces ya está en verde</p>
+        <div class="reward" style="justify-content:center">${rew}</div>
+        ${state.ejemplar?'<p class="note" style="font-size:13px">XP x1.5 por Barrio Ejemplar.</p>':''}
+        <span class="tag tag-zona">${ico('i-home')}Aporte semanal de tu Zona Principal hecho</span></div>`;
+      nav=`<div class="actions two"><button class="btn btn-secondary" data-m="reset">Repetir demo</button><button class="btn btn-primary" data-m="share">Compartir logro</button></div>`;
+    }
+    $('#mission').innerHTML = `${head}${s<=3?stepper:''}${s<=3?timer:''}${mineNote}${content}<div style="margin-top:auto">${nav}</div>`;
+  }
+  $('#mission').addEventListener('click',e=>{
+    const b=e.target.closest('[data-m]'); if(!b) return;
+    const a=b.dataset.m;
+    if(a==='next') state.step=Math.min(4,state.step+1);
+    if(a==='back') state.step=Math.max(1,state.step-1);
+    if(a==='reset') state.step=1;
+    if(a==='share') toast('Tarjeta para compartir simulada.');
+    renderMission();
+  });
+
+  /* ====== Barrio Ejemplar y reporte propio ====== */
+  function applyEjemplar(){
+    const on=state.ejemplar;
+    $('#c1-old').style.display = on?'':'none';
+    $('#c1-cost').textContent = on?30:40;
+    $('#c2-old').style.display = on?'':'none';
+    $('#c2-cost').textContent = on?60:80;
+    $('#c1-note').textContent = on
+      ? '−25% por Barrio Ejemplar. Te quedarán 90 monedas; tu XP y tu nivel no cambian.'
+      : 'Te quedarán 80 monedas; tu XP y tu nivel no cambian.';
+    const card=$('#ejemplar-card');
+    card.classList.toggle('off',!on);
+    $('#ej-title').textContent = on?'Barrio Ejemplar activo':'Barrio Ejemplar: aún no';
+    $('#ej-text').textContent = on
+      ? 'Los Jardines lleva más de 2 semanas en verde: tus cupones cuestan 25% menos monedas y ganas x1.5 XP en misiones.'
+      : 'Si Los Jardines pasa más de 2 semanas en verde sin reportes pendientes, sus vecinos activos pagan 25% menos monedas y ganan x1.5 XP.';
+    $$('.quest [data-xp]').forEach(el=>{el.textContent='+'+xpMul(+el.dataset.xp)+' XP'});
+    renderSheet(state.sel); renderMission();
+  }
+  $('#sw-ejemplar').addEventListener('change',e=>{state.ejemplar=e.target.checked;applyEjemplar()});
+  $('#sw-mine').addEventListener('change',e=>{state.mine=e.target.checked;renderMission()});
+  $('#c1-btn').addEventListener('click',()=>toast('Canje simulado. En producción se integraría con Yape.'));
+
+  applyEjemplar();
+})();
+</script>
+</body>
+</html>
