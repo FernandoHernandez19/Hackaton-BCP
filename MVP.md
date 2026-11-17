@@ -1,5 +1,7 @@
 # MVP — Acuerdos
 
+> **Antes de trabajar, lee [COORDINACION.md](COORDINACION.md)** y los archivos de `coordinacion/`: ahí se reclaman las tareas para no duplicar trabajo.
+
 Escribir solo lo acordado; si algo no está decidido, poner "pendiente".
 *MVP* = producto mínimo viable: lo justo para mostrar en la demo. Ver la guía en [README.md](README.md).
 
