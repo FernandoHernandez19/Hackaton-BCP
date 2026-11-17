@@ -1,20 +1,20 @@
-# Entrevista propuesta — JuegaBarrio
+# Entrevista — Pukllay
 
-**Objetivo:** proponer respuestas a los puntos pendientes y dejar un borrador del canvas listo para revisar.
+**Objetivo:** respuestas base para el canvas de solución. Dueño: Fernando (ver `COORDINACION.md`).
 
-**Estado:** propuesta del asistente, pendiente de revisión del equipo. Los nombres sugeridos, el lugar del piloto, las cantidades, el presupuesto y las metas no son decisiones aprobadas ni resultados obtenidos.
+**Estado (2026-11-17):** el nombre de la solución, **Pukllay** ("Juega. Cuida. Deja mejor."), está confirmado. El lugar del piloto, las cantidades, el presupuesto y las metas siguen siendo propuestas: no son decisiones aprobadas por terceros ni resultados obtenidos.
 
-**Documentos de referencia:** `README2.md`, `arquitectura-mvp.md` y `Canvas_Equipo_Ignite_Hackaton_UPN_BCP.pdf`.
+**Documentos de referencia:** `docs/propuesta-juegabarrio-readme.md`, `docs/arquitectura-mvp.md`, la demo publicada en https://win.crm-ia.org y el canvas oficial `docs/canvas-pukllay.md`.
 
 ## 1. Nombre del equipo e integrantes
 
 **Pregunta:** ¿cómo se llama el equipo y quiénes lo integran?
 
-**Respuesta propuesta:** usar provisionalmente **Equipo JuegaBarrio**, para mantener coherencia con el producto. Si ya existe un nombre de equipo, conservarlo y presentar JuegaBarrio únicamente como nombre de la solución.
+**Respuesta:** la solución se llama **Pukllay** ("jugar" en quechua). Como nombre del equipo se usa provisionalmente **Equipo Pukllay**; si el equipo ya tiene otro nombre, se conserva y Pukllay queda solo como nombre de la solución. JuegaBarrio fue el nombre del primer borrador.
 
-**Integrantes:** Luis Fernando , smith Bazan, Jackelin Soncco.
+**Integrantes:** Luis Fernando, Smith Bazan y Jackelin Soncco.
 
-**Para revisar:** confirmar el nombre y añadir los integrantes.
+**Para revisar:** confirmar el nombre del equipo y si hay un cuarto integrante.
 
 ## 2. Problema y comportamiento elegido
 
@@ -36,11 +36,11 @@ El escenario propuesto es un conjunto de espacios públicos de Los Olivos. Afect
 
 **Pregunta:** ¿quiénes usarían primero la solución?
 
-**Respuesta propuesta:** A adultos y  jovenes que ya participan u organizan actividades deportivas y recreativas, empezando por grupos de vóley, fútbol y ejercicio grupal. La convocatoria inicial se realizaría con organizadores barriales y apoyo municipal.
+**Respuesta propuesta:** jóvenes y adultos que ya participan u organizan actividades deportivas y recreativas, empezando por grupos de vóley, fútbol y ejercicio grupal. La convocatoria inicial se realizaría con organizadores barriales y apoyo municipal.
 
 Este segmento permite probar una conducta repetida con grupos existentes y un organizador identificable. La municipalidad sería aliada operativa y usuaria del panel; los vecinos serían usuarios de la experiencia de participación.
 
-**Para revisar:** confirmar el segmento inicial. La restricción a adultos es una propuesta para el piloto, no una característica ya establecida del producto.
+**Para revisar:** confirmar el segmento inicial. Limitarlo a jóvenes y adultos es una propuesta para el piloto, no una restricción del producto.
 
 ## 4. Piloto 2027 y alianza municipal
 
@@ -53,13 +53,22 @@ La Municipalidad Distrital de Los Olivos sería una **aliada potencial por gesti
 | Etapa | Duración | Actividades |
 |---|---|---|
 | Preparación | Semana 1 | Gestionar autorización, seleccionar espacios, acordar reglas y capacitar al enlace municipal y a los organizadores. |
-| Línea base | Semanas 2 y 3 | Observar actividades habituales sin JuegaBarrio, usando la misma lista de cuidado que se empleará después. |
+| Línea base | Semanas 2 y 3 | Observar actividades habituales sin Pukllay, usando la misma lista de cuidado que se empleará después. |
 | Prueba de uso | Semanas 4 a 7 | Habilitar actividades, check-in y cierre responsable; revisar incidencias y acompañar a los usuarios. |
 | Evaluación | Semana 8 | Comparar resultados, recoger opiniones y acordar ajustes o continuidad. |
 
 **Alcance tentativo:** 60 vecinos únicos inscritos y 24 actividades realizadas durante las cuatro semanas de uso de la plataforma. Son objetivos de convocatoria y operación, no una muestra representativa ni una garantía de participación.
 
 **Recursos:** PWA, teléfonos con cámara y acceso a internet, QR impresos, un enlace municipal, organizadores vecinales y acompañamiento del equipo. No se contempla construir instalaciones ni comprar hardware especializado.
+
+**Riesgos y respuesta prevista:**
+
+| Riesgo | Respuesta prevista |
+|---|---|
+| La municipalidad no autoriza los espacios a tiempo | Iniciar la gestión en la semana 1 y, si se retrasa, mover el calendario sin acortar la línea base. |
+| Baja participación | Convocar a grupos que ya juegan con un organizador conocido y acompañar las primeras actividades. |
+| El cierre registrado en la app no refleja lo ocurrido | Medir el indicador con observación humana y usar la app solo como dato de apoyo. |
+| Fallas de conexión en el espacio | QR impreso con código de respaldo y acompañamiento del equipo. |
 
 **Para revisar:** confirmar distrito, duración y escala. Los tres espacios de Los Olivos ya aparecen como escenario de demo en la arquitectura; su uso real en el piloto todavía debe acordarse.
 
@@ -87,19 +96,18 @@ Se propone que el equipo aporte desarrollo y acompañamiento; la municipalidad, 
 
 ## 6. Prototipo y demostración
 
-**Pregunta:** ¿cómo demostraremos el funcionamiento si aún no tenemos un enlace final?
+**Pregunta:** ¿cómo demostraremos el funcionamiento?
 
-**Respuesta propuesta:** presentar un recorrido de 90 segundos con dos vistas: vecino y municipalidad. Utilizar tres espacios de demostración y datos claramente identificados como simulados.
+**Respuesta:** con la demo publicada por el equipo TecMasters en **https://win.crm-ia.org** (QR en `public/images/qr-win-crm-ia.png`). Es un recorrido de 90 segundos con dos vistas, vecino y municipalidad, y la app lo indica como datos simulados.
 
-1. El gestor municipal habilita un espacio, sus reglas y horarios; un vecino encuentra una actividad de vóley y se une.
-2. El vecino realiza el check-in con QR; para la demo puede simularse la validación de cercanía, indicando expresamente la simulación.
-3. El organizador registra el estado final, los participantes confirman el cierre y el panel municipal actualiza los indicadores. Un reporte de ejemplo permite mostrar la bandeja de incidencias.
+1. El vecino explora el mapa, ve un espacio con sus reglas y horarios y crea o se une a una actividad comprometiéndose a dejar el espacio limpio.
+2. Al llegar escanea el QR del espacio y puede tomar una foto "antes". La validación de cercanía es simulada en la demo.
+3. Al terminar hace el cierre con una lista de cuidado y una foto "después", y reporta una incidencia si encuentra un problema.
+4. El panel municipal muestra el indicador, la racha de cuidado del espacio y la bandeja de incidencias.
 
-**Material de respaldo propuesto:** storyboard con las pantallas de mapa, detalle de actividad, check-in, cierre y panel municipal; además, un video del recorrido cuando el prototipo esté disponible.
+**Respaldo:** video del recorrido (pendiente de grabar; sin dueño todavía) y, si falla el sitio, la versión local con `node server.mjs`.
 
-**Enlace o captura:** pendiente de incorporar cuando exista. Este documento describe la demostración; no acredita que el prototipo o el storyboard ya estén construidos.
-
-**Para revisar:** confirmar este recorrido e incorporar posteriormente el enlace o las capturas reales.
+**Límite:** los espacios, los vecinos y las actividades son de demostración. La demo no acredita resultados ni una alianza municipal.
 
 ## 7. Indicador, línea base y meta
 
@@ -123,55 +131,27 @@ La lista se aplicaría en la línea base y durante el piloto, aunque todavía no
 
 **Comprobación:** aplicar una lista breve antes y después de actividades comparables por espacio, tipo y horario. Un observador del equipo o enlace municipal registraría las comprobaciones; las fotos del espacio y confirmaciones de participantes servirían como apoyo, con consentimiento y evitando captar personas identificables. Se procuraría observar al menos 12 actividades en la línea base y 12 durante el uso, informando siempre cuántas se pudieron verificar.
 
-**Indicadores secundarios:** actividades completadas, puntualidad, participación recurrente, horas de uso y atención de incidencias, según las definiciones de `arquitectura-mvp.md`.
+**Indicadores secundarios:** actividades completadas, puntualidad, participación recurrente, horas de uso y atención de incidencias, según las definiciones de `docs/arquitectura-mvp.md`.
 
 **Precaución de interpretación:** la ausencia de reportes no demuestra por sí sola que el espacio quedó cuidado. La comparación antes/después mostraría un cambio observado; no probaría que todo el cambio se deba a la plataforma. No se prometerán reducciones de gasto municipal ni mejoras de seguridad sin evidencia.
 
 **Para revisar:** confirmar indicador, meta y viabilidad del seguimiento propuesto.
 
-## 8. Texto propuesto para el canvas
+## 8. Texto del canvas
 
-Los siguientes textos son un borrador sujeto a las decisiones anteriores. Aún no se ha modificado el PDF original.
-
-### Datos del equipo
-
-- **Nombre:** Equipo JuegaBarrio — provisional.
-- **Integrantes:** pendiente de completar con nombres reales.
-- **Comportamiento elegido:** cuidado de espacios públicos mediante el cierre responsable de actividades.
-
-### 01. El problema — comportamiento observable
-
-Queremos que los grupos que usan parques y losas recojan sus residuos y dejen el espacio en condiciones adecuadas para el siguiente grupo. La hipótesis por validar en Los Olivos es que este cierre no se realiza de forma constante ni tiene una coordinación sencilla. Esto afecta a participantes, otros vecinos y personal municipal.
-
-### 02. Nuestra solución
-
-JuegaBarrio facilita el cuidado en tres pasos: 1) la municipalidad publica espacios, reglas y horarios y los vecinos se unen a actividades; 2) registran su llegada con QR y validación de cercanía; 3) el grupo realiza y confirma un cierre responsable. El panel municipal permite seguir el uso y atender incidencias. Las reglas visibles y el cierre compartido facilitan repetir la conducta positiva.
-
-### 03. Prototipo / demostración
-
-Demo propuesta de 90 segundos: encontrar una actividad, unirse, hacer check-in y registrar el cierre; después, mostrar la actualización del panel municipal y una incidencia de ejemplo. Se usarán tres espacios demo y datos simulados identificados como tales. Enlace o capturas: pendientes de incorporar; respaldo previsto mediante storyboard y video del recorrido.
-
-### 04. Plan piloto 2027
-
-Piloto propuesto de 8 semanas en 3 espacios de Los Olivos, con 60 vecinos adultos inscritos y 24 actividades previstas durante la fase de uso. Alianza municipal por gestionar. Recursos: PWA, teléfonos, QR, organizadores y enlace municipal. Presupuesto tentativo: S/ 1,500, sin remuneraciones ni obras. Incluye preparación, línea base, cuatro semanas de uso y evaluación.
-
-### 05. ¿Cómo mediremos el impacto?
-
-- **Indicador observable:** porcentaje de actividades observadas que cumplen el cierre responsable: residuos recogidos, instalaciones cuidadas y espacio liberado a tiempo.
-- **Línea base:** por medir durante dos semanas, antes del uso de JuegaBarrio.
-- **Meta esperada:** aumentar 20 puntos porcentuales frente a la línea base, con máximo de 100 %; meta tentativa a revisar antes de intervenir si la base es alta.
-- **Comprobación del cambio:** comparar observaciones antes y después en espacios, actividades y horarios similares, con la misma lista de cuidado, evidencia y cantidades observadas explícitas.
+El texto oficial del canvas está en **`docs/canvas-pukllay.md`** y su versión de una página para entregar en **`docs/canvas-pukllay.pdf`**. Se eliminó de aquí la copia anterior porque repetía las secciones con datos distintos (integrantes pendientes y público solo de adultos).
 
 ## 9. Revisión del equipo
 
 Puedes editar las respuestas directamente o anotar los cambios aquí:
 
+- Nombre de la solución: **Pukllay** (confirmado el 2026-11-17)
 - Nombre definitivo del equipo:
-- Integrantes:
+- Integrantes: Luis Fernando, Smith Bazan y Jackelin Soncco (¿cuarto integrante?)
 - Cambios al problema o al público:
 - Distrito, espacios y situación de la alianza:
 - Cambios al presupuesto, duración o escala:
-- Enlace o material del prototipo disponible:
+- Enlace o material del prototipo disponible: https://win.crm-ia.org
 - Cambios al indicador o la meta:
 
-Después de revisar estas respuestas, se podrá trasladar la versión acordada al canvas conservando su estructura de una página.
+Si cambia algo aquí, hay que actualizar también `docs/canvas-pukllay.md` y regenerar el PDF (ver ese archivo).

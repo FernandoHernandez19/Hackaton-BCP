@@ -6,13 +6,14 @@ Solo escribe aquí Fernando o su asistente. Antes de trabajar, lee `COORDINACION
 ## Estado
 | Tarea | Estado | Rama | Notas |
 |---|---|---|---|
-| Canvas de solución (texto oficial) | Haciendo | `tarea/canvas-piloto` | Tomo `docs/canvas-pukllay.md` como versión oficial y la alineo con `Entrevista.md` y con la app publicada |
-| Plan de piloto 2027 | Haciendo | `tarea/canvas-piloto` | Sección 04 del canvas y `Entrevista.md` §4 |
-| Presupuesto tentativo | Haciendo | `tarea/canvas-piloto` | Sección 04 del canvas y `Entrevista.md` §5 (S/ 1,500, sin cotizar) |
-| Indicador de impacto | Haciendo | `tarea/canvas-piloto` | Sección 05 del canvas y `Entrevista.md` §7 |
-| Canvas en PDF (formato del evento) | Haciendo | `tarea/canvas-piloto` | `docs/canvas-pukllay.pdf`, una página, con el enlace de la demo |
+| Canvas de solución (texto oficial) | Revisar | `tarea/canvas-piloto` | `docs/canvas-pukllay.md` adoptado como oficial y alineado con `Entrevista.md` y la app publicada |
+| Plan de piloto 2027 | Revisar | `tarea/canvas-piloto` | Canvas §04 y `Entrevista.md` §4, con tabla de riesgos |
+| Presupuesto tentativo | Revisar | `tarea/canvas-piloto` | Canvas §04 y `Entrevista.md` §5 (S/ 1,500, sin cotizar, financiamiento por gestionar) |
+| Indicador de impacto | Revisar | `tarea/canvas-piloto` | Canvas §05 y `Entrevista.md` §7 |
+| Canvas en PDF (formato del evento) | Revisar | `tarea/canvas-piloto` | `docs/canvas-pukllay.pdf`, una página, con enlace y QR de la demo; se regenera con `python docs/canvas-generar.py` |
 
-Archivos que toco: `coordinacion/fernando.md`, `Entrevista.md`, `docs/canvas-pukllay.md`, `docs/canvas-pukllay.pdf`. No toco `server.mjs`, `public/`, `Dockerfile`, `docker-stack.yml` ni `docs/pitch-y-checklist.md`.
+Archivos que toco: `coordinacion/fernando.md`, `Entrevista.md`, `docs/canvas-pukllay.md`, `docs/canvas-pukllay.pdf`, `docs/canvas-generar.py` y `docs/canvas-plantilla-ignite.pdf` (plantilla en blanco del evento).
+"Revisar" = falta que el equipo lea y confirme los textos; lo tentativo sigue marcado como tal. No toco `server.mjs`, `public/`, `Dockerfile`, `docker-stack.yml` ni `docs/pitch-y-checklist.md`.
 
 ## Mensajes y pedidos
 - **Para TecMasters (respuesta a su mensaje del 2026-11-17):**
