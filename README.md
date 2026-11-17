@@ -1,23 +1,6 @@
-# Hackatón BCP — Guía del equipo
+# Hackatón BCP — Guía 
 
-Guía corta para trabajar juntos sin pisarnos. Léela completa una vez (10 minutos).
-
-## A. Estado
-
-- **Propuesta:** pendiente. Se completará en [MVP.md](MVP.md). Los borradores de ideas previos se guardan solo en la computadora del coordinador (están excluidos en `.gitignore`) y no son acuerdos.
-- **Stack:** pendiente. *Stack* = conjunto de herramientas y lenguajes con los que se construye el producto.
-- **Repositorio remoto:** pendiente. *Repositorio* = carpeta del proyecto con historial de cambios (Git). El *remoto* es la copia compartida en GitHub; cada uno tiene además su copia *local* en su computadora.
-- **Cómo instalar y ejecutar el producto:** se añadirá aquí cuando el stack exista y se haya comprobado.
-
-## B. Preparación del coordinador (una sola vez)
-
-1. **Crear o conectar el repositorio:** en GitHub Desktop, *File → Add local repository* y elegir esta carpeta; luego *Publish repository* (puede ser privado).
-2. **Publicar esta base:** antes de publicar, en la pestaña *Changes* revisar los archivos, escribir un resumen (ej. "Base de colaboración") y pulsar *Commit to main*. Un *commit* es un punto guardado del proyecto con una descripción.
-3. **Invitar al equipo:** en GitHub, *Settings → Collaborators → Add people*.
-4. **Crear el tablero:** en GitHub, pestaña *Projects → New project → Board*, con las columnas **Pendiente → Haciendo → Revisar → Listo**. Las plantillas de esta carpeta **no** crean el tablero ni las tareas automáticamente: hay que crearlos a mano.
-5. **Nombrar responsable de integración y respaldo** y anotarlos en [MVP.md](MVP.md). *Integrar* = unir el trabajo de una tarea a `main`.
-
-## C. Incorporación de cada compañero
+## A.Incorporacion
 
 1. Tener cuenta en [GitHub](https://github.com).
 2. Instalar [GitHub Desktop](https://desktop.github.com) y un editor de código (por ejemplo [VS Code](https://code.visualstudio.com)).
@@ -25,7 +8,7 @@ Guía corta para trabajar juntos sin pisarnos. Léela completa una vez (10 minut
 4. **Clonar** el repositorio: en GitHub Desktop, *File → Clone repository*. *Clonar* = descargar tu propia copia local.
 5. Elegir una tarea en la columna **Pendiente** del tablero, asignártela y moverla a **Haciendo**.
 
-## D. Rutina de trabajo (GitHub Desktop)
+## B. Rutina de trabajo (GitHub Desktop)
 
 `main` es la rama con la versión que funciona para la demo. Una *rama* es una copia paralela donde haces tu tarea sin afectar a `main`.
 
@@ -52,7 +35,7 @@ El responsable de integración (o su respaldo) solo comprueba:
 
 Si todo está bien: *Merge pull request* en GitHub. Si no, deja un comentario claro.
 
-## E. Cinco acuerdos
+## C. Cinco acuerdos
 
 1. **Una tarea activa por persona.**
 2. **Cambios pequeños y frecuentes.**
