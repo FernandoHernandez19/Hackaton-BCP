@@ -29,6 +29,21 @@ Escribir solo lo acordado; si algo no está decidido, poner "pendiente".
 - **Responsable de integración:** pendiente
 - **Respaldo:** video de 90 segundos del recorrido (pendiente de grabar)
 
+## Reparto por áreas (quién es dueño de qué)
+
+Cada área tiene una sola persona dueña. Antes de tocar algo ajeno, se avisa al dueño. Los nombres en pendiente se completan hoy.
+
+| Área | Dueño | Qué incluye | Fuente oficial |
+|---|---|---|---|
+| App y publicación en `win.crm-ia.org` | Equipo TecMasters (pendiente nombre) | Código, fotos de la app, publicar en Server TEC | `server.mjs`, `public/` |
+| Canvas, plan de piloto y presupuesto | Fernando | Textos del canvas, piloto 2027, costos, indicador | `Entrevista.md` |
+| Pitch de 90 s y diapositivas | pendiente (una persona) | Guion, ensayo, diapositivas | `docs/pitch-y-checklist.md` |
+| Video de respaldo | pendiente | Grabar el recorrido de 90 s | — |
+| Diseño visual | Decisión conjunta | Nombre y estilo Pukllay | `public/index.html` |
+| Integración a `main` | Fernando (dueño del repo) | Revisar y fusionar los pull requests | — |
+
+Reglas: una tarea activa por persona, una rama `tarea/...` por tarea, avisar por el grupo antes de empezar ("estoy haciendo X") y traer `main` a tu rama antes de empezar.
+
 ## Tareas
 
 Estados: Pendiente → Haciendo → Revisar → Listo
