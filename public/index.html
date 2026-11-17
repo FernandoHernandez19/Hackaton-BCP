@@ -2,249 +2,563 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>JuegaBarrio</title>
-<meta name="theme-color" content="#1f7a4d">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Pukllay · Juega. Cuida. Deja mejor.</title>
+<meta name="theme-color" content="#14181f">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@500;600;700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <style>
-:root{--bg:#f4f7f3;--ink:#17261e;--muted:#5a6a61;--g:#1f7a4d;--gd:#14573a;--card:#fff;--line:#dce5de;--warn:#9a5b00;--bad:#b3261e}
-*{box-sizing:border-box}
-body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;background:var(--bg);color:var(--ink)}
-a{color:var(--gd)}
-header{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;background:var(--g)}
-header a{color:#fff;text-decoration:none;font-weight:700}
-header nav{display:flex;gap:16px}
-.banner{background:#fff3cf;color:var(--warn);text-align:center;font-size:13px;padding:4px 12px}
-main{max-width:980px;margin:0 auto;padding:16px}
-h1{font-size:24px;margin:8px 0}h2{font-size:18px;margin:20px 0 8px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:12px}
-.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-.btn{display:inline-block;background:var(--g);color:#fff;border:0;border-radius:10px;padding:12px 16px;font-size:16px;font-weight:600;cursor:pointer;text-decoration:none}
-.btn:hover{background:var(--gd)}.btn.sec{background:#fff;color:var(--gd);border:1px solid var(--g)}.btn.small{padding:8px 12px;font-size:14px}
-.btn:disabled{opacity:.5;cursor:not-allowed}
+:root{--ink:#14181f;--ink2:#3a4350;--muted:#667080;--bg:#faf6ee;--card:#fff;--line:#e8e2d4;
+--y:#ffc400;--y2:#f5b700;--ysoft:#fff0b8;--t:#17b8c9;--tsoft:#d6f3f7;--g:#1e9e4a;--gsoft:#ddf3e3;--r:#d0342c;--rsoft:#fde5e3;--amber:#8a5a00;
+--shadow:0 6px 20px rgba(20,24,31,.08)}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth}
+body{margin:0;font-family:Nunito,system-ui,-apple-system,"Segoe UI",sans-serif;background:var(--bg);color:var(--ink);font-weight:600;padding-bottom:96px;overscroll-behavior-y:contain}
+a{color:inherit}
+svg.i{width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;flex:none}
+svg.i.s{width:20px;height:20px}
+/* cabecera */
+.top{position:sticky;top:0;z-index:50;background:var(--ink);color:#fff;overflow:hidden}
+.top .in{max-width:760px;margin:0 auto;padding:14px 18px 12px;display:flex;align-items:center;justify-content:space-between;position:relative}
+.top:after{content:"";position:absolute;right:-30px;top:-40px;width:130px;height:110px;background:var(--y);border-radius:0 0 0 100%;opacity:.95}
+.brand{font-size:34px;font-weight:900;color:var(--y);line-height:1;text-decoration:none;letter-spacing:-.5px}
+.tag{font-size:13px;font-weight:700;color:#fff;margin-top:2px}
+.top .acts{display:flex;gap:18px;position:relative;z-index:2;color:#fff}
+.top .acts a{position:relative;display:flex;min-width:44px;min-height:44px;align-items:center;justify-content:center;color:#fff;text-decoration:none}
+.dot{position:absolute;top:8px;right:8px;width:11px;height:11px;border-radius:50%;background:var(--y);border:2px solid var(--ink)}
+main{max-width:760px;margin:0 auto;padding:18px 18px 8px}
+h1{font-size:30px;line-height:1.1;font-weight:900;margin:6px 0 6px;letter-spacing:-.5px}
+h2{font-size:21px;font-weight:900;margin:22px 0 10px}
+.sub{color:var(--ink2);font-size:16px;margin:0 0 14px;font-weight:600}
 .muted{color:var(--muted);font-size:14px}
-.badge{display:inline-block;background:#e4f3ea;color:var(--gd);padding:2px 10px;border-radius:999px;font-size:13px;font-weight:600}
-.badge.warn{background:#fff3cf;color:var(--warn)}.badge.bad{background:#fde7e5;color:var(--bad)}
-.grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
-.kpi{font-size:38px;font-weight:800;color:var(--gd);line-height:1.1}
-#map{height:320px;border-radius:12px;border:1px solid var(--line);margin-bottom:12px}
-input[type=text],input[type=datetime-local],input[type=number],select,textarea{width:100%;padding:10px;border:1px solid var(--line);border-radius:8px;font-size:16px;font-family:inherit;background:#fff}
-label{display:block;font-weight:600;margin:10px 0 4px}
-.check{display:flex;gap:12px;align-items:center;padding:14px;border:2px solid var(--line);border-radius:12px;margin:8px 0;font-size:17px;cursor:pointer;background:#fff}
-.check input{width:26px;height:26px;accent-color:var(--g)}
-.check.on{border-color:var(--g);background:#eef8f2}
-.photos{display:flex;gap:10px;flex-wrap:wrap}.photos img{width:140px;height:100px;object-fit:cover;border-radius:8px;border:1px solid var(--line)}
-.steps{display:flex;gap:6px;margin:10px 0}.steps span{flex:1;text-align:center;padding:6px 2px;border-radius:8px;background:#e9eee9;font-size:13px;font-weight:600;color:var(--muted)}
-.steps span.on{background:var(--g);color:#fff}.steps span.done{background:#cfe9d9;color:var(--gd)}
-.toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:#17261e;color:#fff;padding:12px 18px;border-radius:10px;z-index:9999;max-width:90vw}
-.toast.err{background:var(--bad)}
-ul.rules{margin:6px 0 0;padding-left:20px}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.between{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.card{background:var(--card);border-radius:22px;padding:16px;box-shadow:var(--shadow);margin-bottom:14px}
+/* botones */
+.btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;min-height:54px;background:var(--y);color:var(--ink);border:0;border-radius:16px;font:800 19px Nunito,sans-serif;cursor:pointer;text-decoration:none;box-shadow:0 3px 0 rgba(160,110,0,.25);transition:transform .12s,background .15s}
+.btn:hover{background:var(--y2)}.btn:active{transform:translateY(1px)}
+.btn.out{background:#fff;border:2px solid #cfd3da;box-shadow:none;color:var(--ink)}
+.btn.sm{min-height:44px;width:auto;padding:0 20px;font-size:17px;border-radius:14px}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+:focus-visible{outline:3px solid var(--t);outline-offset:2px}
+/* chips, selects, buscador */
+.pill{display:inline-flex;align-items:center;gap:8px;background:var(--tsoft);color:#0b5d68;font-weight:800;border-radius:999px;padding:9px 14px;font-size:16px}
+.chip{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:5px 12px;font-size:14px;font-weight:800;background:var(--gsoft);color:#126b2f}
+.chip.y{background:var(--ysoft);color:var(--amber)}.chip.t{background:var(--tsoft);color:#0b5d68}.chip.r{background:var(--rsoft);color:var(--r)}.chip.gr{background:#eceef1;color:var(--muted)}
+.search{display:flex;align-items:center;gap:12px;background:#fff;border:2px solid var(--line);border-radius:18px;padding:0 16px;min-height:58px;margin-bottom:12px}
+.search input{border:0;outline:0;flex:1;font:600 18px Nunito,sans-serif;background:transparent;min-height:54px;color:var(--ink)}
+.filters{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+.sel{position:relative;background:#fff;border:2px solid var(--line);border-radius:16px;min-height:52px;display:flex;align-items:center;padding:0 10px;gap:6px}
+.sel select{appearance:none;border:0;background:transparent;font:800 16px Nunito,sans-serif;width:100%;min-height:48px;outline:0;color:var(--ink);padding-right:18px;text-overflow:ellipsis}
+.sel .chev{position:absolute;right:8px;pointer-events:none;width:18px;height:18px}
+.field{background:#fff;border:2px solid var(--line);border-radius:16px;margin-bottom:12px;display:flex;align-items:stretch;overflow:hidden}
+.field .ic{background:var(--tsoft);width:60px;display:flex;align-items:center;justify-content:center;color:var(--ink);flex:none}
+.field .bd{flex:1;padding:6px 14px;position:relative;min-width:0}
+.field label{font-size:13px;color:var(--muted);display:block;font-weight:700}
+.field select,.field input{border:0;outline:0;width:100%;font:800 19px Nunito,sans-serif;background:transparent;appearance:none;padding:2px 24px 4px 0;color:var(--ink);min-height:30px}
+textarea{width:100%;border:2px solid var(--line);border-radius:16px;padding:12px;font:600 17px Nunito,sans-serif;resize:none;color:var(--ink)}
+/* segmentado */
+.seg{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;background:#fff;border:2px solid var(--line);border-radius:18px;padding:4px;margin-bottom:14px}
+.seg a{display:flex;align-items:center;justify-content:center;gap:6px;min-height:46px;border-radius:14px;text-decoration:none;font-weight:800;font-size:16px;color:var(--ink2)}
+.seg a.on{background:var(--y);color:var(--ink);box-shadow:0 2px 0 rgba(160,110,0,.25)}
+/* mapa */
+#map{height:300px;border-radius:22px;margin-bottom:14px;border:2px solid var(--line);z-index:1}
+.pin{display:flex;align-items:center;gap:6px;transform:translate(-18px,-44px);white-space:nowrap}
+.pin .b{width:38px;height:38px;border-radius:50% 50% 50% 4px;transform:rotate(-45deg);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 10px rgba(0,0,0,.25);border:3px solid #fff}
+.pin .b svg{transform:rotate(45deg);width:20px;height:20px;stroke:#fff}
+.pin .l{background:#fff;border-radius:12px;padding:5px 10px;font:800 14px Nunito,sans-serif;box-shadow:0 3px 10px rgba(0,0,0,.18);color:var(--ink)}
+.pin.on .l{background:var(--ysoft);outline:2px solid var(--y)}
+/* tarjetas de espacio y actividad */
+.sp{display:flex;gap:14px;margin-bottom:14px}
+.thumb{width:116px;height:116px;border-radius:16px;object-fit:cover;flex:none;background:var(--tsoft);overflow:hidden;display:block}
+.thumb svg{width:100%;height:100%;display:block}
+.hero{width:100%;height:210px;border-radius:22px;object-fit:cover;display:block;overflow:hidden;position:relative;background:var(--tsoft)}
+.hero svg{width:100%;height:100%;display:block}
+.badge-demo{position:absolute;left:12px;top:12px;background:var(--ysoft);border-radius:999px;padding:7px 14px;font-weight:800;font-size:15px;color:var(--ink);box-shadow:0 2px 8px rgba(0,0,0,.15)}
+.tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:14px 0}
+.tile{background:#fff;border-radius:18px;padding:12px;box-shadow:var(--shadow);text-align:left}
+.tile .h{display:flex;align-items:center;gap:8px;font-weight:800;font-size:15px;line-height:1.15;margin-bottom:8px}
+.tile .v{border-radius:12px;padding:8px 6px;text-align:center;font-weight:800;font-size:15px;line-height:1.2}
+.rules{display:grid;grid-template-columns:repeat(3,1fr);margin-top:12px}
+.rules div{text-align:center;padding:0 6px;font-weight:800;font-size:16px;line-height:1.2}
+.rules div+div{border-left:2px solid var(--line)}
+.rules svg{width:46px;height:46px;stroke:var(--t);margin-bottom:6px}
+.rules div:nth-child(3) svg{stroke:var(--g)}.rules div:nth-child(2) svg{stroke:var(--ink)}
+.bar{height:9px;border-radius:99px;background:#dfe3e8;overflow:hidden;margin:6px 0}.bar i{display:block;height:100%;background:var(--g);border-radius:99px}
+.act{display:flex;gap:14px;margin-bottom:14px}
+.act .tx{flex:1;min-width:0}
+.act h3{margin:6px 0 4px;font-size:24px;line-height:1.1;font-weight:900}
+.act .ln{display:flex;align-items:center;gap:8px;font-size:16px;color:var(--ink2);margin:3px 0}
+.live{display:flex;align-items:center;gap:14px;background:var(--ysoft);border-radius:20px;padding:14px 16px;margin-bottom:14px;text-decoration:none}
+.live b{font-size:30px;font-weight:900;line-height:1}
+.pulse{width:12px;height:12px;border-radius:50%;background:var(--g);box-shadow:0 0 0 0 rgba(30,158,74,.5);animation:pu 1.8s infinite;flex:none}
+@keyframes pu{70%{box-shadow:0 0 0 12px rgba(30,158,74,0)}100%{box-shadow:0 0 0 0 rgba(30,158,74,0)}}
+.note{display:flex;gap:10px;align-items:flex-start;color:var(--ink2);font-style:italic;font-size:15px;margin:10px 4px}
+.note svg{color:var(--t);margin-top:2px}
+.info{display:flex;gap:12px;align-items:center;background:var(--tsoft);border-radius:16px;padding:14px;font-weight:800;font-size:17px;margin:12px 0}
+.info svg{color:#0b8795;width:30px;height:30px}
+/* franjas */
+.slot{display:flex;align-items:center;gap:12px;border:2px solid var(--line);background:#fff;border-radius:16px;padding:14px;margin-bottom:8px;font-weight:800;font-size:19px;cursor:pointer;min-height:56px}
+.slot.on{border-color:var(--y);background:#fff8dc}
+.slot.off{background:#eef0f3;color:var(--muted);cursor:not-allowed}
+.slot input{width:24px;height:24px;accent-color:var(--ink)}
+.slot .st{margin-left:auto}
+.check{display:flex;gap:14px;align-items:center;padding:14px;border:2px solid var(--line);border-radius:16px;margin:8px 0;font-size:18px;cursor:pointer;background:#fff;font-weight:800;min-height:60px}
+.check input{width:28px;height:28px;accent-color:var(--y);flex:none}
+.check.on{border-color:var(--y);background:#fff8dc}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0}
+.steps span{text-align:center;padding:9px 2px;border-radius:12px;background:#e9e6dd;font-size:14px;font-weight:800;color:var(--muted)}
+.steps span.on{background:var(--y);color:var(--ink)}.steps span.done{background:var(--gsoft);color:#126b2f}
+.kpi{font-size:44px;font-weight:900;line-height:1}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.photos{display:flex;gap:10px;flex-wrap:wrap}.photos img{width:46%;max-width:240px;border-radius:14px}
+.back{display:flex;align-items:center;gap:14px;margin-bottom:14px}
+.back a{width:52px;height:52px;border:2px solid var(--line);border-radius:16px;background:#fff;display:flex;align-items:center;justify-content:center;flex:none}
+.back h1{margin:0;font-size:28px}
+.av{display:inline-flex;width:34px;height:34px;border-radius:50%;align-items:center;justify-content:center;font-weight:900;color:#fff;font-size:15px;border:2px solid #fff;margin-right:-8px}
+.feed .it{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--line);align-items:flex-start}
+.feed .it:last-child{border:0}
+/* barra inferior */
+.nav{position:fixed;left:0;right:0;bottom:0;z-index:60;background:#fff;border-radius:26px 26px 0 0;box-shadow:0 -6px 24px rgba(20,24,31,.1);padding:8px 10px calc(10px + env(safe-area-inset-bottom))}
+.nav .in{max-width:760px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.nav a{display:flex;flex-direction:column;align-items:center;gap:3px;text-decoration:none;font-weight:800;font-size:14px;padding:8px 4px;border-radius:18px;min-height:60px;color:var(--ink2);justify-content:center}
+.nav a.on{background:var(--ysoft);color:var(--ink)}
+.toast{position:fixed;left:50%;bottom:112px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:13px 20px;border-radius:14px;z-index:999;max-width:90vw;font-weight:800;text-align:center}
+.toast.err{background:var(--r)}
+.okring{width:92px;height:92px;border-radius:50%;background:var(--g);display:inline-flex;align-items:center;justify-content:center;margin-top:6px;box-shadow:0 0 0 10px rgba(30,158,74,.12)}
+.banner-g{background:var(--gsoft);color:#0f5a27;border-radius:999px;padding:12px 16px;font-weight:800;font-size:19px;margin-bottom:14px}
+.scan{position:relative;height:330px;border-radius:26px;overflow:hidden;border:6px solid #fff;box-shadow:var(--shadow);margin-bottom:14px;background:#7cc66a}
+.scanbg,.scanimg{position:absolute;inset:0;width:100%;height:100%}.scanimg{height:100%!important}
+.corner{position:absolute;width:56px;height:56px;border:6px solid #fff}
+.corner.tl{left:36px;top:36px;border-right:0;border-bottom:0;border-radius:22px 0 0 0}.corner.tr{right:36px;top:36px;border-left:0;border-bottom:0;border-radius:0 22px 0 0}
+.corner.bl{left:36px;bottom:60px;border-right:0;border-top:0;border-radius:0 0 0 22px}.corner.br{right:36px;bottom:60px;border-left:0;border-top:0;border-radius:0 0 22px 0}
+.qrbox{position:absolute;left:50%;top:46%;transform:translate(-50%,-50%);background:#fff;border-radius:24px;padding:14px;line-height:0;box-shadow:0 6px 24px rgba(0,0,0,.25)}
+.qrbox img,.qrbox canvas{width:150px!important;height:150px!important}
+.simpill{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);background:rgba(255,255,255,.88);border-radius:999px;padding:8px 16px;font-weight:800;font-size:16px;display:flex;gap:8px;align-items:center;white-space:nowrap}
+.strip{display:flex;align-items:center;gap:14px;border-radius:18px;padding:14px 16px;margin-bottom:12px;font-size:19px;line-height:1.25}
+.strip.g{background:var(--gsoft);color:#0f5a27}.strip.t{background:var(--tsoft);color:#0a4d57}
+.strip .ck{width:46px;height:46px;border-radius:50%;background:var(--g);display:flex;align-items:center;justify-content:center;flex:none}.strip .ck svg{stroke:#fff;stroke-width:2.6}
+.strip .ck.b{background:transparent;border:2px solid var(--t);border-radius:12px}.strip .ck.b svg{stroke:var(--t);stroke-width:1.9}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+@media (min-width:640px){.thumb{width:140px;height:140px}.hero{height:280px}}
 </style>
 </head>
 <body>
-<header><a href="#/">JuegaBarrio</a><nav><a href="#/">Vecino</a><a href="#/muni">Municipalidad</a></nav></header>
-<div class="banner">Demo con datos simulados — ningún dato es real</div>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s7-6.2 7-11.5A7 7 0 0 0 5 9.5C5 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></symbol>
+<symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></symbol>
+<symbol id="i-cal" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15.5" rx="3"/><path d="M8 3v4M16 3v4M3.5 10h17"/></symbol>
+<symbol id="i-calcheck" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15.5" rx="3"/><path d="M8 3v4M16 3v4M3.5 10h17M9 15l2.2 2.2L15.5 13"/></symbol>
+<symbol id="i-calplus" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15.5" rx="3"/><path d="M8 3v4M16 3v4M3.5 10h17M12 12.5v5M9.5 15h5"/></symbol>
+<symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5"/><circle cx="17" cy="9" r="2.4"/><path d="M16.5 14.6c2.6.3 4.5 2.1 4.5 5"/></symbol>
+<symbol id="i-ball" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m12 8 3.2 2.3-1.2 3.7h-4l-1.2-3.7zM12 8V3.2M15.2 10.3l4.6-1.5M14 14l2.8 3.8M10 14l-2.8 3.8M8.8 10.3 4.2 8.8"/></symbol>
+<symbol id="i-volley" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 3c2 3 2.5 6 1 9-1 2-3 3.5-6 4M3.5 9.5c3.5-.5 6.5.5 8.5 2.5s3 5 3 8M20.5 14.5c-1-3-3.5-5-7-5.5"/></symbol>
+<symbol id="i-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.5"/><path d="m7.8 12.4 2.9 2.9 5.5-6"/></symbol>
+<symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.5"/><path d="M12 11v6M12 7.5v.1"/></symbol>
+<symbol id="i-back" viewBox="0 0 24 24"><path d="M19 12H5M11 6l-6 6 6 6"/></symbol>
+<symbol id="i-bell" viewBox="0 0 24 24"><path d="M6 17V11a6 6 0 0 1 12 0v6l1.5 2h-15zM10 21h4"/></symbol>
+<symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.5"/><circle cx="12" cy="10" r="3.2"/><path d="M5.8 18.5c1.4-2.3 3.6-3.4 6.2-3.4s4.8 1.1 6.2 3.4"/></symbol>
+<symbol id="i-map" viewBox="0 0 24 24"><path d="m3 6.5 6-2.5 6 2.5 6-2.5v13.5l-6 2.5-6-2.5-6 2.5zM9 4v13.5M15 6.5V20"/></symbol>
+<symbol id="i-book" viewBox="0 0 24 24"><path d="M6 3.5h12v17l-6-4.2-6 4.2z"/></symbol>
+<symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+<symbol id="i-trash" viewBox="0 0 24 24"><path d="M5 7h14M9 7V4.5h6V7M7 7l1 13h8l1-13M10 11v6M14 11v6"/></symbol>
+<symbol id="i-play" viewBox="0 0 24 24"><path d="M3 20h18M5 20V9l3.5-4L12 9v11M12 12h4l3 8"/></symbol>
+<symbol id="i-nav" viewBox="0 0 24 24"><path d="M20.5 3.5 3.5 10.5l7 2.5 2.5 7z"/></symbol>
+<symbol id="i-chev" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+<symbol id="i-right" viewBox="0 0 24 24"><path d="m9 5 7 7-7 7"/></symbol>
+<symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+<symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 20s-7.5-4.6-7.5-10A4.3 4.3 0 0 1 12 7.4 4.3 4.3 0 0 1 19.5 10c0 5.4-7.5 10-7.5 10z"/></symbol>
+<symbol id="i-block" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m5.7 5.7 12.6 12.6"/></symbol>
+<symbol id="i-bulb" viewBox="0 0 24 24"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z"/></symbol>
+<symbol id="i-check2" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></symbol>
+<symbol id="i-camera" viewBox="0 0 24 24"><path d="M4 8h3l1.6-2.5h6.8L17 8h3v11H4z"/><circle cx="12" cy="13" r="3.4"/></symbol>
+<symbol id="i-chart" viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-8M22 20H2"/></symbol>
+</defs></svg>
+
+<header class="top"><div class="in">
+  <div><a class="brand" href="#/">Pukllay</a><div class="tag">Juega. Cuida. Deja mejor.</div></div>
+  <div class="acts"><a href="#/en-vivo" aria-label="Ciudad en vivo"><svg class="i"><use href="#i-bell"/></svg><span class="dot"></span></a><a href="#/perfil" aria-label="Perfil"><svg class="i"><use href="#i-user"/></svg></a></div>
+</div></header>
 <main id="app">Cargando…</main>
+<nav class="nav" aria-label="Principal"><div class="in" id="nav"></div></nav>
+
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
 const $app = document.getElementById("app");
-let S = null; // estado del servidor
+let S = null;           // estado del servidor
+let POLL = null;        // refresco automático en pantallas "en vivo"
+const Q = { q: "", act: "", dist: "", hour: "" }; // filtros de Explorar
+const TZ = "America/Lima", CENTER = [-11.9925, -77.0705];
+const CATS = ["Fútbol", "Vóley", "Básquet", "Baile", "Juegos tradicionales", "Bienestar", "Otro"];
+const TITLES = { "Fútbol": "Fútbol amistoso", "Vóley": "Vóley vecinal", "Básquet": "Básquet 3x3", "Baile": "Baile comunitario", "Juegos tradicionales": "Juegos tradicionales", "Bienestar": "Bienestar al aire libre", "Otro": "Actividad vecinal" };
+const ICON = (c) => ({ "Fútbol": "ball", "Vóley": "volley", "Básquet": "ball", "Baile": "users", "Juegos tradicionales": "play", "Bienestar": "heart" }[c] || "ball");
+const COLORS = ["#e4572e", "#17b8c9", "#7c5cff", "#1e9e4a", "#f08a24", "#d63384", "#2f6fed", "#8a6d00"];
+
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
-const getName = () => { try { return localStorage.getItem("jb_name") || ""; } catch { return ""; } };
-const setName = (n) => { try { localStorage.setItem("jb_name", n); } catch {} };
-const fmt = (iso) => new Date(iso).toLocaleString("es-PE", { weekday: "short", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
+const ic = (n, cls = "") => `<svg class="i ${cls}"><use href="#i-${n}"/></svg>`;
+const getName = () => { try { return localStorage.getItem("pk_name") || ""; } catch { return ""; } };
+const setName = (n) => { try { localStorage.setItem("pk_name", n); } catch {} };
+const getFavs = () => { try { return JSON.parse(localStorage.getItem("pk_favs") || "[]"); } catch { return []; } };
+const setFavs = (f) => { try { localStorage.setItem("pk_favs", JSON.stringify(f)); } catch {} };
+const pad = (n) => String(n).padStart(2, "0");
 const space = (id) => S.spaces.find((s) => s.id === id);
-const STATUS = { programada: ["Programada", ""], en_curso: ["En curso", "warn"], completada: ["Completada", ""] };
+const dkey = (d) => new Date(new Date(d).getTime() - 5 * 3600e3).toISOString().slice(0, 10);
+const addDays = (key, n) => new Date(new Date(key + "T12:00:00-05:00").getTime() + n * 864e5).toISOString().slice(0, 10);
+const todayKey = () => dkey(Date.now());
+const hhmm = (iso) => new Date(iso).toLocaleTimeString("es-PE", { hour: "2-digit", minute: "2-digit", hour12: false, timeZone: TZ });
+const dayLabel = (iso) => { const k = dkey(iso); if (k === todayKey()) return "Hoy"; if (k === addDays(todayKey(), 1)) return "Mañana"; return new Date(iso).toLocaleDateString("es-PE", { weekday: "short", day: "numeric", month: "short", timeZone: TZ }); };
+const when = (iso) => `${dayLabel(iso)} · ${hhmm(iso)}`;
+const limaHour = () => new Date(Date.now() - 5 * 3600e3).getUTCHours();
+const openNow = (sp) => !sp.hours || (limaHour() >= sp.hours.from && limaHour() < sp.hours.to);
+const hoursTxt = (sp) => (sp.hours ? `${pad(sp.hours.from)}:00 – ${pad(sp.hours.to)}:00` : sp.schedule);
+const km = (sp) => { const R = 6371, r = Math.PI / 180, dLa = (sp.lat - CENTER[0]) * r, dLo = (sp.lng - CENTER[1]) * r; const a = Math.sin(dLa / 2) ** 2 + Math.cos(CENTER[0] * r) * Math.cos(sp.lat * r) * Math.sin(dLo / 2) ** 2; return 2 * R * Math.asin(Math.sqrt(a)); };
+const distTxt = (sp) => { const d = km(sp); return d < 1 ? `a ${Math.round(d * 10) * 100} m` : `a ${d.toFixed(1)} km`; };
+const color = (n) => COLORS[[...String(n)].reduce((a, c) => a + c.charCodeAt(0), 0) % COLORS.length];
+const avatar = (n) => `<span class="av" style="background:${color(n)}" title="${esc(n)}">${esc(String(n)[0] || "?").toUpperCase()}</span>`;
+const ago = (iso) => { const m = Math.max(0, Math.round((Date.now() - new Date(iso)) / 60000)); if (m < 1) return "ahora"; if (m < 60) return `hace ${m} min`; const h = Math.round(m / 60); return h < 24 ? `hace ${h} h` : `hace ${Math.round(h / 24)} d`; };
 
 async function api(path, body) {
   const r = await fetch("/api/" + path, body === undefined ? {} : { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
-  const j = await r.json();
-  if (!r.ok) throw new Error(j.error || "Error");
-  return j;
+  const j = await r.json(); if (!r.ok) throw new Error(j.error || "Error"); return j;
 }
 async function refresh() { S = await api("state"); }
-function toast(msg, err) { const t = document.createElement("div"); t.className = "toast" + (err ? " err" : ""); t.textContent = msg; document.body.appendChild(t); setTimeout(() => t.remove(), 3200); }
+function toast(msg, err) { const t = document.createElement("div"); t.className = "toast" + (err ? " err" : ""); t.setAttribute("role", "status"); t.textContent = msg; document.body.appendChild(t); setTimeout(() => t.remove(), 3200); }
 async function act(fn) { try { await fn(); } catch (e) { toast(e.message, true); } }
-
-// Foto -> JPEG reducido (data URL)
 function readPhoto(file) {
   return new Promise((resolve) => {
     if (!file) return resolve(undefined);
     const img = new Image(), fr = new FileReader();
-    fr.onload = () => { img.onload = () => {
-      const k = Math.min(1, 640 / Math.max(img.width, img.height)), c = document.createElement("canvas");
-      c.width = img.width * k; c.height = img.height * k; c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
-      resolve(c.toDataURL("image/jpeg", 0.6)); }; img.onerror = () => resolve(undefined); img.src = fr.result; };
+    fr.onload = () => { img.onload = () => { const k = Math.min(1, 640 / Math.max(img.width, img.height)), c = document.createElement("canvas"); c.width = img.width * k; c.height = img.height * k; c.getContext("2d").drawImage(img, 0, 0, c.width, c.height); resolve(c.toDataURL("image/jpeg", 0.6)); }; img.onerror = () => resolve(undefined); img.src = fr.result; };
     fr.onerror = () => resolve(undefined); fr.readAsDataURL(file);
   });
 }
 
-// ---------- Vistas ----------
-function actCard(a) {
-  const sp = space(a.spaceId), [label, cls] = STATUS[a.status];
-  return `<div class="card"><div class="row"><strong>${esc(a.title)}</strong><span class="badge ${cls}">${label}</span></div>
-    <div class="muted">${esc(sp?.name)} · ${fmt(a.startsAt)} · ${a.participants.length}/${a.capacity} personas</div>
-    <p><a class="btn small" href="#/actividad/${a.id}">Ver actividad</a></p></div>`;
+// ---------- ilustraciones (si no hay foto en /img se dibuja una escena) ----------
+function scene(kind) {
+  const court = kind === "losa";
+  return `<svg viewBox="0 0 320 220" preserveAspectRatio="xMidYMid slice"><rect width="320" height="220" fill="#bfe7f5"/><circle cx="262" cy="46" r="26" fill="#fff6c7"/><ellipse cx="80" cy="50" rx="34" ry="11" fill="#fff"/><ellipse cx="110" cy="44" rx="26" ry="10" fill="#fff"/>
+  <rect y="132" width="320" height="88" fill="${court ? "#4aa7c9" : "#7cc66a"}"/>${court ? '<g stroke="#fff" stroke-width="3" fill="none"><rect x="30" y="148" width="260" height="58" rx="4"/><path d="M160 148v58"/><circle cx="160" cy="177" r="14"/></g><rect x="148" y="100" width="4" height="48" fill="#444"/><path d="M104 118h112" stroke="#fff" stroke-width="3"/>' : '<circle cx="70" cy="92" r="46" fill="#4f9e45"/><circle cx="108" cy="104" r="32" fill="#5fb353"/><rect x="64" y="110" width="12" height="52" fill="#8a5a36"/><rect x="214" y="150" width="70" height="10" rx="3" fill="#c88a4e"/><rect x="220" y="140" width="58" height="8" rx="3" fill="#d9a066"/><rect x="262" y="96" width="5" height="60" fill="#333"/><circle cx="264" cy="92" r="9" fill="#ffd54a"/>'}</svg>`;
 }
+function tileCat(cat) { return `<svg viewBox="0 0 120 120"><rect width="120" height="120" fill="${cat === "Vóley" ? "#4aa7c9" : cat === "Baile" || cat === "Bienestar" ? "#ffe7a3" : "#7cc66a"}"/><circle cx="60" cy="60" r="30" fill="#fff"/><g transform="translate(40 40) scale(1.7)" stroke="#14181f" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><use href="#i-${ICON(cat)}"/></g></svg>`; }
+const imgOr = (src, fb, cls) => `<span class="${cls}" style="display:block;position:relative"><img src="${src}" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block;position:absolute;inset:0" onerror="this.remove()">${fb}</span>`;
+const spaceImg = (sp, cls) => imgOr(`/img/${sp.id}.jpg`, scene(sp.type), cls);
+const catImg = (cat, cls) => imgOr(`/img/cat-${cat.normalize("NFD").replace(/[^a-z]/gi, "").toLowerCase()}.jpg`, tileCat(cat), cls);
 
+// ---------- navegación ----------
+function nav(active) {
+  const t = [["", "map", "Explorar"], ["actividades", "cal", "Actividades"], ["mis-espacios", "book", "Mis espacios"], ["perfil", "user", "Perfil"]];
+  document.getElementById("nav").innerHTML = t.map(([h, i, l]) => `<a href="#/${h}" class="${active === h ? "on" : ""}">${ic(i)}<span>${l}</span></a>`).join("");
+}
+function back(title, href) { return `<div class="back"><a href="${href}" aria-label="Volver">${ic("back")}</a><h1>${esc(title)}</h1></div>`; }
+const note = (t) => `<div class="note">${ic("info", "s")}<span>${t}</span></div>`;
+
+// ---------- Explorar ----------
+function filteredSpaces() {
+  let list = S.spaces.slice();
+  if (Q.q) list = list.filter((s) => (s.name + " " + (s.sports || "")).toLowerCase().includes(Q.q.toLowerCase()));
+  if (Q.act) list = list.filter((s) => S.activities.some((a) => a.spaceId === s.id && a.category === Q.act && a.status !== "completada") || (s.sports || "").toLowerCase().includes(Q.act.toLowerCase().slice(0, 4)));
+  if (Q.hour === "ahora") list = list.filter(openNow);
+  if (Q.dist) list = list.filter((s) => km(s) <= Number(Q.dist));
+  return list.sort((a, b) => km(a) - km(b));
+}
 function viewHome() {
-  const upcoming = S.activities.filter((a) => a.status !== "completada");
-  $app.innerHTML = `<h1>Deja la losa mejor de como la encontraste</h1>
-    <p class="muted">Encuentra una actividad cerca, súmate y comprométete a cuidar el espacio.</p>
-    <div id="map"></div>
-    <h2>Espacios habilitados</h2>
-    <div class="grid">${S.spaces.map((s) => `<div class="card"><strong>${esc(s.name)}</strong>
-      <div class="muted">${esc(s.schedule)}</div>
-      <p><span class="badge">Racha de cuidado: ${s.careStreak}</span></p>
-      <a class="btn small sec" href="#/espacio/${s.id}">Ver espacio</a></div>`).join("")}</div>
-    <h2>Próximas actividades</h2>${upcoming.map(actCard).join("") || '<p class="muted">No hay actividades programadas.</p>'}`;
-  if (window.L) {
-    const map = L.map("map").setView([-11.9925, -77.0705], 14);
-    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", { attribution: "© OpenStreetMap" }).addTo(map);
-    S.spaces.forEach((s) => L.marker([s.lat, s.lng]).addTo(map).bindPopup(`<b>${esc(s.name)}</b><br><a href="#/espacio/${s.id}">Ver espacio</a>`));
-  } else { document.getElementById("map").outerHTML = '<p class="muted">El mapa necesita internet. Usa la lista de espacios.</p>'; }
+  nav("");
+  const st = S.stats;
+  $app.innerHTML = `<h1>Espacios cerca de ti</h1><p class="sub">Descubre parques y losas, revisa sus horarios y únete a actividades.</p>
+  <a class="live" href="#/en-vivo"><span class="pulse"></span><div><b>${st.playingNow}</b> <span style="font-weight:800">vecinos jugando ahora</span><div class="muted">${st.liveActivities} actividades en curso · ${st.neighbors} vecinos activos (datos simulados)</div></div><span style="margin-left:auto">${ic("right")}</span></a>
+  <label class="search">${ic("search")}<input id="q" type="search" placeholder="Busca un parque o losa" value="${esc(Q.q)}" aria-label="Buscar espacio"></label>
+  <div class="filters">
+    <div class="sel">${ic("ball", "s")}<select id="fa" aria-label="Actividad"><option value="">Actividad</option>${CATS.slice(0, 6).map((c) => `<option ${Q.act === c ? "selected" : ""}>${c}</option>`).join("")}</select>${ic("chev", "chev")}</div>
+    <div class="sel">${ic("pin", "s")}<select id="fd" aria-label="Distancia"><option value="">Distancia</option><option value="0.7" ${Q.dist === "0.7" ? "selected" : ""}>Menos de 700 m</option><option value="1.5" ${Q.dist === "1.5" ? "selected" : ""}>Menos de 1,5 km</option></select>${ic("chev", "chev")}</div>
+    <div class="sel">${ic("cal", "s")}<select id="fh" aria-label="Horario"><option value="">Horario</option><option value="ahora" ${Q.hour === "ahora" ? "selected" : ""}>Abierto ahora</option></select>${ic("chev", "chev")}</div>
+  </div>
+  <div id="map" role="application" aria-label="Mapa de espacios"></div><div id="sel"></div>
+  ${note("Horarios y disponibilidad sujetos a confirmación municipal. Todos los datos de esta demo son simulados.")}`;
+  const rerender = () => { Q.q = document.getElementById("q").value; Q.act = document.getElementById("fa").value; Q.dist = document.getElementById("fd").value; Q.hour = document.getElementById("fh").value; drawMap(); };
+  document.getElementById("q").oninput = rerender; ["fa", "fd", "fh"].forEach((id) => (document.getElementById(id).onchange = rerender));
+  drawMap();
+}
+let MAP = null;
+function drawMap(selId) {
+  const list = filteredSpaces(); const el = document.getElementById("map"); if (!el) return;
+  const pick = list.find((s) => s.id === selId) || list[0];
+  const sel = document.getElementById("sel");
+  sel.innerHTML = pick ? spaceCard(pick) : `<div class="card"><strong>No hay espacios con esos filtros.</strong></div>`;
+  if (!window.L) { el.outerHTML = '<div class="card muted">El mapa necesita internet. Usa la lista de espacios de abajo.</div>'; return; }
+  if (MAP) { MAP.remove(); MAP = null; }
+  MAP = L.map(el, { zoomControl: true, attributionControl: true }).setView(CENTER, 15);
+  L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", { attribution: "© OpenStreetMap" }).addTo(MAP);
+  const pts = [];
+  list.forEach((s) => {
+    const c = s.type === "losa" ? "#17b8c9" : "#f5b700", on = pick && s.id === pick.id;
+    const m = L.marker([s.lat, s.lng], { icon: L.divIcon({ className: "", html: `<div class="pin ${on ? "on" : ""}"><div class="b" style="background:${c}">${ic(s.type === "losa" ? "ball" : "play")}</div><div class="l">${esc(s.name)}</div></div>`, iconSize: [0, 0] }) }).addTo(MAP);
+    m.on("click", () => drawMap(s.id)); pts.push([s.lat, s.lng]);
+  });
+  if (pts.length > 1) MAP.fitBounds(pts, { padding: [50, 50], maxZoom: 16 });
+  setTimeout(() => MAP && MAP.invalidateSize(), 50);
+}
+function spaceCard(s) {
+  const next = S.activities.filter((a) => a.spaceId === s.id && a.status !== "completada").length;
+  return `<div class="card"><div class="sp" style="margin:0 0 12px">${spaceImg(s, "thumb")}<div style="flex:1;min-width:0"><div class="between"><h2 style="margin:0">${esc(s.name)}</h2>${ic("right")}</div>
+    <div style="margin:8px 0"><span class="chip ${openNow(s) ? "" : "gr"}">${ic("check", "s")} ${openNow(s) ? "Abierto para actividades" : "Fuera de horario"}</span></div>
+    <div class="act"><div class="ln" style="margin:0">${ic("cal", "s")} ${esc(s.schedule)}</div></div>
+    <div class="ln" style="display:flex;gap:8px;align-items:center;color:var(--ink2)">${ic("ball", "s")} ${esc(s.sports || "")}</div>
+    <div class="muted">${distTxt(s)} · ${next} actividades · racha de cuidado ${s.careStreak}</div></div></div>
+    <a class="btn" href="#/espacio/${s.id}">Ver espacio</a></div>`;
 }
 
+// ---------- Espacio ----------
 function viewSpace(id) {
-  const s = space(id); if (!s) return notFound();
-  const acts = S.activities.filter((a) => a.spaceId === id && a.status !== "completada");
-  const qrUrl = location.origin + "/#/qr/" + s.qrToken;
-  const base = new Date(Date.now() + 3600e3); base.setMinutes(0, 0, 0);
-  const local = new Date(base - base.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
-  $app.innerHTML = `<p><a href="#/">← Volver</a></p><h1>${esc(s.name)}</h1>
-    <div class="card"><div class="muted">${esc(s.address)}</div><div>${esc(s.schedule)} · aforo ${s.capacity}</div>
-      <p><span class="badge">Racha de cuidado: ${s.careStreak} ${s.careStreak === 1 ? "uso" : "usos"} seguidos</span></p>
-      <strong>Reglas del espacio</strong><ul class="rules">${s.rules.map((r) => `<li>${esc(r)}</li>`).join("")}</ul></div>
-    <div class="card"><strong>Cartel QR de la losa</strong><div class="muted">Se pega en la losa. Al escanearlo, el vecino hace su check-in.</div>
-      <div id="qr" style="margin:10px 0"></div><a class="btn small sec" href="#/qr/${s.qrToken}">Simular escaneo del QR</a></div>
-    <h2>Actividades</h2>${acts.map(actCard).join("") || '<p class="muted">Aún no hay actividades. Crea la primera.</p>'}
-    <h2>Crear una actividad</h2>
-    <div class="card"><label>Nombre</label><input type="text" id="t" placeholder="Ej. Vóley de la tarde">
-      <label>Deporte o categoría</label><input type="text" id="c" placeholder="Vóley">
-      <label>Fecha y hora</label><input type="datetime-local" id="d" value="${local}">
-      <label>Cupos</label><input type="number" id="n" value="10" min="2" max="${s.capacity}">
-      <p class="muted">Al crearla aceptas el compromiso de dejar el espacio limpio.</p>
-      <button class="btn" id="go">Crear y unirme</button></div>`;
-  if (window.QRCode) new QRCode(document.getElementById("qr"), { text: qrUrl, width: 140, height: 140 });
-  else document.getElementById("qr").textContent = qrUrl;
+  nav(""); const s = space(id); if (!s) return notFound();
+  const acts = S.activities.filter((a) => a.spaceId === id && a.status !== "completada").sort((a, b) => new Date(a.startsAt) - new Date(b.startsAt));
+  const favs = getFavs(), isFav = favs.includes(id);
+  const R = [["calcheck", s.rules[0] || "Respeta los turnos"], ["play", s.rules[1] || "Cuida las instalaciones"], ["trash", "Deja limpio el espacio"]];
+  $app.innerHTML = `${back(s.name, "#/")}
+  <div class="hero">${spaceImg(s, "hero")}<span class="badge-demo">Espacio de demostración</span></div>
+  <div class="tiles">
+    <div class="tile"><div class="h">${ic("clock", "s")}<span>Horario habilitado</span></div><div class="v" style="background:var(--tsoft)">${hoursTxt(s)}</div></div>
+    <div class="tile"><div class="h">${ic("users", "s")}<span>Cupo máximo</span></div><div class="v" style="background:var(--ysoft)">${s.capacity} personas</div></div>
+    <div class="tile"><div class="h">${ic("ball", "s")}<span>Actividades</span></div><div class="v" style="background:var(--gsoft);color:#126b2f">${esc(s.sports || "Recreación")}</div></div></div>
+  <div class="card"><h2 style="margin:0">Reglas del espacio</h2><p class="sub" style="margin:4px 0 0">Para que todos disfruten y el espacio se mantenga en buen estado.</p>
+    <div class="rules">${R.map(([i, t]) => `<div>${ic(i)}<br>${esc(t)}</div>`).join("")}</div></div>
+  <div class="card"><h2 style="margin:0 0 10px">Próximas actividades</h2>
+    ${acts.map((a) => `<a class="card act" style="box-shadow:none;border:2px solid var(--line);margin-bottom:10px;text-decoration:none;align-items:center" href="#/actividad/${a.id}"><div class="thumb" style="width:64px;height:64px;border-radius:14px">${catImg(a.category, "thumb")}</div><div class="tx"><strong style="font-size:19px">${esc(a.title)}</strong>
+      <div class="ln">${ic("cal", "s")} ${when(a.startsAt)} ${ic("users", "s")} ${a.participants.length}/${a.capacity}</div><div class="bar"><i style="width:${Math.min(100, (a.participants.length / a.capacity) * 100)}%"></i></div></div>${ic("right")}</a>`).join("") || '<p class="muted">Aún no hay actividades. Crea la primera.</p>'}
+    <a class="btn" href="#/crear/${id}" style="margin-bottom:10px">${ic("calplus")} Crear actividad aquí</a>
+    <a class="btn out" href="https://www.google.com/maps/dir/?api=1&destination=${s.lat},${s.lng}" target="_blank" rel="noopener">${ic("nav")} Cómo llegar</a></div>
+  <div class="card"><div class="between"><div><strong style="font-size:19px">Cartel QR del espacio</strong><div class="muted">Se pega en el espacio. Al escanearlo, el vecino hace su check-in.</div></div></div><div id="qr" style="margin:12px 0"></div>
+    <div class="row"><a class="btn out sm" href="#/qr/${s.qrToken}">Simular escaneo</a><button class="btn out sm" id="fav">${ic("book", "s")} ${isFav ? "Quitar de mis espacios" : "Guardar en mis espacios"}</button></div></div>
+  ${note("Reglas y cupos visibles antes de usar el espacio.")}`;
+  const qr = location.origin + "/#/qr/" + s.qrToken;
+  if (window.QRCode) new QRCode(document.getElementById("qr"), { text: qr, width: 150, height: 150 }); else document.getElementById("qr").textContent = qr;
+  document.getElementById("fav").onclick = () => { setFavs(isFav ? favs.filter((x) => x !== id) : [...favs, id]); toast(isFav ? "Quitado de tus espacios" : "Guardado en tus espacios"); viewSpace(id); };
+}
+
+// ---------- Actividades ----------
+const myName = () => getName();
+function actCard(a) {
+  const sp = space(a.spaceId), me = a.participants.some((p) => p.name === myName()), full = a.participants.length >= a.capacity;
+  const live = a.status === "en_curso";
+  return `<div class="card act">${catImg(a.category, "thumb")}<div class="tx"><div class="between"><span class="chip">${ic(ICON(a.category), "s")} ${esc(a.category)}</span>${live ? '<span class="chip y"><span class="pulse"></span> En vivo</span>' : ""}</div>
+    <h3>${esc(a.title)}</h3><div class="ln">${ic("pin", "s")} ${esc(sp?.name)}</div><div class="ln">${ic("cal", "s")} ${when(a.startsAt)}</div>
+    <div class="ln">${ic("users", "s")} ${a.participants.length} de ${a.capacity} cupos</div><div class="bar"><i style="width:${Math.min(100, (a.participants.length / a.capacity) * 100)}%"></i></div>
+    <div class="between" style="margin-top:8px"><span class="muted">${ic("user", "s")} Organiza: <b>${esc(a.organizer || a.participants[0]?.name || "Vecino")}</b></span>
+    <a class="btn sm ${me || full || a.status === "completada" ? "out" : ""}" href="#/actividad/${a.id}">${a.status === "completada" ? "Ver cierre" : me ? "Ver detalle" : full ? "Completo" : "Unirme"}</a></div></div></div>`;
+}
+function viewActs(tab = "disponibles") {
+  nav("actividades");
+  const seg = `<div class="seg" role="tablist"><a href="#/actividades/disponibles" class="${tab === "disponibles" ? "on" : ""}">${ic("cal", "s")} Disponibles</a><a href="#/actividades/mias" class="${tab === "mias" ? "on" : ""}">${ic("calcheck", "s")} Mis actividades</a><a href="#/actividades/propuestas" class="${tab === "propuestas" ? "on" : ""}">${ic("bulb", "s")} Propuestas</a></div>`;
+  let body = "";
+  if (tab === "propuestas") {
+    const need = S.stats.approvalVotes, list = S.proposals.slice().sort((a, b) => b.votes.length - a.votes.length);
+    body = `<p class="sub">Propón un juego y el barrio lo apoya. Con ${need} apoyos pasa a ser una actividad.</p><a class="btn" href="#/proponer" style="margin-bottom:14px">${ic("bulb")} Proponer un juego</a>` +
+      list.map((p) => { const sp = space(p.spaceId), mine = p.votes.includes(myName()), ok = p.votes.length >= need;
+        return `<div class="card"><div class="between"><span class="chip t">${esc(p.category)}</span>${p.status === "programada" ? '<span class="chip">Ya es actividad</span>' : ok ? '<span class="chip y">Aprobada por el barrio</span>' : ""}</div>
+        <h3 style="margin:8px 0 4px;font-size:22px">${esc(p.title)}</h3><div class="ln muted">${ic("pin", "s")} ${esc(sp?.name)} · propuesto por ${esc(p.proposedBy)} · ${ago(p.createdAt)}</div><p style="margin:8px 0">${esc(p.description)}</p>
+        <div class="bar"><i style="width:${Math.min(100, (p.votes.length / need) * 100)}%;background:var(--y2)"></i></div><div class="muted">${p.votes.length} de ${need} apoyos</div>
+        <div class="between" style="margin-top:10px"><div>${p.votes.slice(0, 5).map(avatar).join("")}</div>
+        ${p.status !== "abierta" ? `<a class="btn sm out" href="#/actividad/${p.activityId}">Ver actividad</a>` : ok ? `<button class="btn sm" data-promote="${p.id}">Convertir en actividad</button>` : `<button class="btn sm ${mine ? "out" : ""}" data-vote="${p.id}">${ic("heart", "s")} ${mine ? "Quitar apoyo" : "Apoyar"}</button>`}</div></div>`; }).join("");
+  } else {
+    let list = S.activities.filter((a) => a.status !== "completada");
+    if (tab === "mias") list = S.activities.filter((a) => a.participants.some((p) => p.name === myName()));
+    list.sort((a, b) => new Date(a.startsAt) - new Date(b.startsAt));
+    body = `<div class="filters"><div class="sel">${ic("cal", "s")}<select id="ft"><option value="">Todas</option><option value="hoy">Hoy</option></select>${ic("chev", "chev")}</div>
+      <div class="sel">${ic("ball", "s")}<select id="fc"><option value="">Deporte</option>${CATS.slice(0, 6).map((c) => `<option>${c}</option>`).join("")}</select>${ic("chev", "chev")}</div>
+      <div class="sel">${ic("pin", "s")}<select id="fs"><option value="">Cerca</option><option value="cerca">Más cerca primero</option></select>${ic("chev", "chev")}</div></div>
+      <div id="list">${list.map(actCard).join("") || `<div class="card"><strong>${tab === "mias" ? (myName() ? "Aún no te has unido a ninguna actividad." : "Escribe tu nombre en Perfil para ver tus actividades.") : "No hay actividades programadas."}</strong></div>`}</div>
+      <a class="btn" href="#/crear">${ic("plus")} Crear actividad</a>`;
+    setTimeout(() => {
+      const apply = () => { const t = document.getElementById("ft").value, c = document.getElementById("fc").value, s = document.getElementById("fs").value; let l = list.filter((a) => (!t || dkey(a.startsAt) === todayKey()) && (!c || a.category === c)); if (s) l = l.sort((a, b) => km(space(a.spaceId)) - km(space(b.spaceId))); document.getElementById("list").innerHTML = l.map(actCard).join("") || '<div class="card"><strong>Sin resultados.</strong></div>'; };
+      ["ft", "fc", "fs"].forEach((i) => document.getElementById(i) && (document.getElementById(i).onchange = apply));
+    }, 0);
+  }
+  $app.innerHTML = `<h1>${tab === "propuestas" ? "Propuestas del barrio" : "Actividades en tu zona"}</h1>${tab !== "propuestas" ? '<p class="sub">Participa en actividades deportivas y recreativas en parques y losas de Los Olivos.</p>' : ""}${seg}${body}${note("Únete a una actividad existente o crea la tuya en un horario habilitado.")}`;
+  document.querySelectorAll("[data-vote]").forEach((b) => (b.onclick = () => act(async () => { const n = needName(); if (!n) return; await api(`proposals/${b.dataset.vote}/vote`, { name: n }); await refresh(); viewActs("propuestas"); })));
+  document.querySelectorAll("[data-promote]").forEach((b) => (b.onclick = () => act(async () => {
+    const p = S.proposals.find((x) => x.id === b.dataset.promote), sp = space(p.spaceId), d = addDays(todayKey(), 1), slots = slotsFor(sp, d).filter((x) => x.ok);
+    if (!slots.length) throw new Error("No hay franjas libres mañana");
+    await api(`proposals/${p.id}/promote`, { name: myName(), startsAt: slots[0].iso }); toast(`Listo: ${p.title} mañana a las ${pad(slots[0].h)}:00`); await refresh(); viewActs("disponibles");
+  })));
+}
+function needName() { let n = myName(); if (!n) { n = (prompt("¿Cómo te llamas? (solo se muestra tu nombre)") || "").trim(); if (n) setName(n); } return n; }
+
+// ---------- Crear actividad ----------
+function slotsFor(sp, dateKey) {
+  const out = []; if (!sp.hours) return out;
+  for (let h = sp.hours.from; h < sp.hours.to; h++) {
+    const iso = new Date(`${dateKey}T${pad(h)}:00:00-05:00`).toISOString(), t = new Date(iso);
+    const taken = S.activities.some((a) => a.spaceId === sp.id && a.status !== "completada" && Math.abs(new Date(a.startsAt) - t) < 3600e3);
+    out.push({ h, iso, ok: !taken && t > Date.now() });
+  }
+  return out;
+}
+function viewCreate(spaceId) {
+  nav("actividades");
+  let sid = spaceId || S.spaces[0].id, dk = todayKey(), pick = null;
+  const draw = () => {
+    const sp = space(sid), slots = slotsFor(sp, dk), days = [0, 1, 2, 3, 4, 5, 6].map((n) => addDays(todayKey(), n));
+    if (!slots.some((s) => s.iso === pick && s.ok)) pick = (slots.find((s) => s.ok) || {}).iso || null;
+    const caps = []; for (let c = 4; c <= sp.capacity; c += 2) caps.push(c);
+    $app.innerHTML = `${back("Crear actividad", "#/actividades")}<p class="sub" style="margin-top:-6px">Organiza una actividad en un espacio y horario habilitado.</p>
+    <div class="card"><div class="field"><div class="ic">${ic("pin")}</div><div class="bd"><label for="fs">Espacio</label><select id="fs">${S.spaces.map((s) => `<option value="${s.id}" ${s.id === sid ? "selected" : ""}>${esc(s.name)}</option>`).join("")}</select>${ic("chev", "chev").replace('class="i ', 'style="position:absolute;right:10px;top:22px;width:20px" class="i ')}</div></div>
+    <div class="field"><div class="ic">${ic("ball")}</div><div class="bd"><label for="fc">Actividad</label><select id="fc">${CATS.map((c) => `<option>${c}</option>`).join("")}</select></div></div>
+    <div class="field"><div class="ic">${ic("cal")}</div><div class="bd"><label for="fd">Fecha</label><select id="fd">${days.map((d) => `<option value="${d}" ${d === dk ? "selected" : ""}>${new Date(d + "T12:00:00-05:00").toLocaleDateString("es-PE", { weekday: "short", day: "numeric", month: "short", timeZone: TZ })}</option>`).join("")}</select></div></div>
+    <h2 style="font-size:19px;margin:14px 0 8px">Franja horaria <span class="muted" style="font-weight:600">(horarios habilitados)</span></h2>
+    ${slots.map((s) => `<label class="slot ${s.ok ? (pick === s.iso ? "on" : "") : "off"}"><input type="radio" name="sl" value="${s.iso}" ${s.ok ? "" : "disabled"} ${pick === s.iso ? "checked" : ""}> ${pad(s.h)}:00 – ${pad(s.h + 1)}:00 <span class="chip st ${s.ok ? "" : "gr"}">${s.ok ? ic("check", "s") + " Disponible" : ic("block", "s") + " No disponible"}</span></label>`).join("") || '<p class="muted">Este espacio no tiene horarios habilitados.</p>'}
+    <h2 style="font-size:19px;margin:14px 0 8px">Aforo</h2><div class="field"><div class="ic">${ic("users")}</div><div class="bd"><select id="fn" aria-label="Aforo">${caps.map((c) => `<option value="${c}" ${c === Math.min(10, sp.capacity) ? "selected" : ""}>${c} participantes</option>`).join("")}</select></div></div>
+    <div class="info">${ic("info")}<span>Solo puedes crear actividades en horarios habilitados por la municipalidad.</span></div>
+    <h2 style="font-size:19px;margin:14px 0 8px">Indicaciones para el grupo <span class="muted" style="font-weight:600">(opcional)</span></h2>
+    <textarea id="fo" rows="3" maxlength="200" placeholder="Ej.: Punto de encuentro en la entrada. Llevar polo deportivo y agua."></textarea><div class="muted" style="text-align:right"><span id="cnt">0</span>/200</div>
+    ${getName() ? "" : `<div class="field" style="margin-top:8px"><div class="ic">${ic("user")}</div><div class="bd"><label for="fnm">Tu nombre</label><input id="fnm" placeholder="Ej. Lucía"></div></div>`}
+    <label class="check" id="rl"><input type="checkbox" id="rc"> <span>Acepto las reglas del espacio. <a href="#/espacio/${sid}" style="color:#0b8795;text-decoration:underline">Ver reglas</a></span></label>
+    <button class="btn" id="go" ${pick ? "" : "disabled"}>${ic("calplus")} Publicar actividad</button></div>`;
+    const $ = (i) => document.getElementById(i);
+    $("fs").onchange = (e) => { sid = e.target.value; pick = null; draw(); }; $("fd").onchange = (e) => { dk = e.target.value; pick = null; draw(); };
+    document.querySelectorAll("input[name=sl]").forEach((r) => (r.onchange = () => { pick = r.value; document.querySelectorAll(".slot").forEach((l) => l.classList.toggle("on", l.querySelector("input").checked)); }));
+    $("fo").oninput = () => ($("cnt").textContent = $("fo").value.length); $("rc").onchange = (e) => $("rl").classList.toggle("on", e.target.checked);
+    $("go").onclick = () => act(async () => {
+      const n = getName() || ($("fnm") && $("fnm").value.trim()); if (!n) throw new Error("Escribe tu nombre"); if (!$("rc").checked) throw new Error("Debes aceptar las reglas del espacio"); setName(n);
+      const cat = $("fc").value, a = await api("activities", { spaceId: sid, title: TITLES[cat], category: cat, startsAt: pick, capacity: Number($("fn").value), notes: $("fo").value, name: n });
+      toast("¡Actividad publicada!"); await refresh(); location.hash = "#/actividad/" + a.id;
+    });
+  };
+  draw();
+}
+function viewPropose() {
+  nav("actividades");
+  $app.innerHTML = `${back("Proponer un juego", "#/actividades/propuestas")}<p class="sub" style="margin-top:-6px">Cuéntale al barrio qué te gustaría jugar. Con ${S.stats.approvalVotes} apoyos pasa a actividad.</p>
+  <div class="card"><div class="field"><div class="ic">${ic("pin")}</div><div class="bd"><label for="ps">Espacio</label><select id="ps">${S.spaces.map((s) => `<option value="${s.id}">${esc(s.name)}</option>`).join("")}</select></div></div>
+  <div class="field"><div class="ic">${ic("bulb")}</div><div class="bd"><label for="pt">Nombre del juego</label><input id="pt" maxlength="80" placeholder="Ej. Ajedrez gigante"></div></div>
+  <div class="field"><div class="ic">${ic("ball")}</div><div class="bd"><label for="pc">Categoría</label><select id="pc">${CATS.map((c) => `<option>${c}</option>`).join("")}</select></div></div>
+  <textarea id="pd" rows="3" maxlength="200" placeholder="¿Cómo se juega y para quién es?"></textarea>
+  ${getName() ? "" : `<div class="field" style="margin-top:12px"><div class="ic">${ic("user")}</div><div class="bd"><label for="pn">Tu nombre</label><input id="pn" placeholder="Ej. Lucía"></div></div>`}
+  <button class="btn" id="go" style="margin-top:12px">${ic("bulb")} Publicar propuesta</button></div>`;
   document.getElementById("go").onclick = () => act(async () => {
-    const name = getName() || prompt("¿Cómo te llamas?")?.trim(); if (!name) return; setName(name);
-    const a = await api("activities", { spaceId: id, title: document.getElementById("t").value, category: document.getElementById("c").value, startsAt: new Date(document.getElementById("d").value).toISOString(), capacity: Number(document.getElementById("n").value), name });
-    location.hash = "#/actividad/" + a.id;
+    const n = getName() || (document.getElementById("pn") && document.getElementById("pn").value.trim()); if (!n) throw new Error("Escribe tu nombre"); setName(n);
+    await api("proposals", { spaceId: document.getElementById("ps").value, title: document.getElementById("pt").value, category: document.getElementById("pc").value, description: document.getElementById("pd").value, name: n });
+    toast("¡Propuesta publicada!"); await refresh(); location.hash = "#/actividades/propuestas";
   });
 }
 
-function stepper(a, me) {
-  const joined = !!me, arrived = !!me?.checkedInAt, done = a.status === "completada";
-  const cls = (i, ok) => (ok ? "done" : i ? "on" : "");
-  return `<div class="steps"><span class="${joined ? "done" : "on"}">1 Unirse</span><span class="${arrived ? "done" : joined ? "on" : ""}">2 Check-in</span><span class="${done ? "done" : arrived ? "on" : ""}">3 Cierre</span></div>`;
+// ---------- Detalle de actividad, check-in y cierre ----------
+function stepper(me, a) {
+  const j = !!me, ar = !!me?.checkedInAt, d = a.status === "completada";
+  return `<div class="steps"><span class="${j ? "done" : "on"}">1 Unirse</span><span class="${ar ? "done" : j ? "on" : ""}">2 Check-in</span><span class="${d ? "done" : ar ? "on" : ""}">3 Cierre</span></div>`;
 }
-
 function viewActivity(id) {
-  const a = S.activities.find((x) => x.id === id); if (!a) return notFound();
+  nav("actividades"); const a = S.activities.find((x) => x.id === id); if (!a) return notFound();
   const sp = space(a.spaceId), name = getName(), me = a.participants.find((p) => p.name === name);
-  let action = "";
-  if (a.status === "completada") {
-    action = `<div class="card"><span class="badge ${a.closure?.cleanSpace ? "" : "bad"}">${a.closure?.cleanSpace ? "Cerrada: espacio en buen estado" : "Cerrada con observaciones"}</span>
-      <div class="photos" style="margin-top:10px">${a.beforePhoto ? `<div><div class="muted">Antes</div><img src="${a.beforePhoto}"></div>` : ""}${a.afterPhoto ? `<div><div class="muted">Después</div><img src="${a.afterPhoto}"></div>` : ""}</div></div>`;
-  } else if (!me) {
-    action = `<div class="card"><strong>Únete a la actividad</strong>
-      <label>Tu nombre</label><input type="text" id="nm" value="${esc(name)}" placeholder="Tu nombre">
-      <label class="check" id="cm"><input type="checkbox" id="cmt"> Me comprometo a dejar ${esc(sp.type === "losa" ? "la losa" : "el parque")} limpio</label>
-      <button class="btn" id="join">Unirme</button></div>`;
-  } else if (!me.checkedInAt) {
-    action = `<div class="card"><strong>Cuando llegues, escanea el QR del espacio</strong><p class="muted">En la demo lo simulamos.</p>
-      <a class="btn" href="#/qr/${sp.qrToken}">Hacer check-in (simular QR)</a></div>`;
-  } else {
-    action = `<div class="card"><strong>Al terminar, haz el cierre (30 segundos)</strong><p><a class="btn" href="#/cierre/${a.id}">Cerrar actividad</a></p></div>`;
-  }
-  $app.innerHTML = `<p><a href="#/espacio/${sp.id}">← ${esc(sp.name)}</a></p><h1>${esc(a.title)}</h1>
-    <div class="muted">${fmt(a.startsAt)} · ${a.participants.length}/${a.capacity} personas · ${esc(a.category)}</div>${stepper(a, me)}${action}
-    <div class="card"><strong>Participantes</strong><ul class="rules">${a.participants.map((p) => `<li>${esc(p.name)} ${p.checkedInAt ? '<span class="badge">llegó</span>' : ""}</li>`).join("") || "<li>Aún nadie</li>"}</ul></div>
-    <div class="card"><strong>Reglas del espacio</strong><ul class="rules">${sp.rules.map((r) => `<li>${esc(r)}</li>`).join("")}</ul></div>`;
+  let action;
+  if (a.status === "completada") action = `<div class="card"><span class="chip ${a.closure?.cleanSpace ? "" : "r"}">${a.closure?.cleanSpace ? "Cerrada: espacio en buen estado" : "Cerrada con observaciones"}</span><div class="photos" style="margin-top:10px">${a.beforePhoto ? `<img src="${a.beforePhoto}" alt="Antes">` : ""}${a.afterPhoto ? `<img src="${a.afterPhoto}" alt="Después">` : ""}</div></div>`;
+  else if (!me) action = `<div class="card"><h2 style="margin:0 0 8px">Únete a la actividad</h2>${name ? "" : `<div class="field"><div class="ic">${ic("user")}</div><div class="bd"><label for="nm">Tu nombre</label><input id="nm" placeholder="Ej. Lucía"></div></div>`}
+    <label class="check" id="cm"><input type="checkbox" id="cmt"><span>Me comprometo a dejar ${sp.type === "losa" ? "la losa" : "el parque"} limpio</span></label><button class="btn" id="join">Unirme</button></div>`;
+  else if (!me.checkedInAt) action = `<div class="card"><h2 style="margin:0 0 6px">Cuando llegues, escanea el QR</h2><p class="muted">En la demo lo simulamos.</p><a class="btn" href="#/qr/${sp.qrToken}">Hacer check-in (simular QR)</a></div>`;
+  else action = `<div class="card"><h2 style="margin:0 0 6px">Al terminar, haz el cierre</h2><p class="muted">Son 30 segundos: 3 toques y una foto.</p><a class="btn" href="#/cierre/${a.id}">Cerrar actividad</a></div>`;
+  $app.innerHTML = `${back(a.title, "#/actividades")}<div class="card act" style="align-items:center">${catImg(a.category, "thumb")}<div class="tx"><span class="chip">${esc(a.category)}</span><div class="ln">${ic("pin", "s")} ${esc(sp.name)}</div><div class="ln">${ic("cal", "s")} ${when(a.startsAt)}</div><div class="ln">${ic("users", "s")} ${a.participants.length}/${a.capacity} · Organiza: ${esc(a.organizer || a.participants[0]?.name || "Vecino")}</div></div></div>
+  ${a.notes ? `<div class="info">${ic("info")}<span>${esc(a.notes)}</span></div>` : ""}${stepper(me, a)}${action}
+  <div class="card"><h2 style="margin:0 0 8px">Participantes</h2>${a.participants.map((p) => `<div class="between" style="padding:6px 0">${`<span class="row">${avatar(p.name)}<span style="margin-left:14px">${esc(p.name)}</span></span>`}${p.checkedInAt ? '<span class="chip">Llegó</span>' : ""}</div>`).join("") || '<p class="muted">Aún nadie</p>'}</div>
+  <div class="card"><h2 style="margin:0">Reglas del espacio</h2><ul style="padding-left:20px;margin:8px 0 0">${sp.rules.map((r) => `<li>${esc(r)}</li>`).join("")}</ul></div>`;
   const join = document.getElementById("join");
   if (join) {
     document.getElementById("cmt").onchange = (e) => document.getElementById("cm").classList.toggle("on", e.target.checked);
     join.onclick = () => act(async () => {
-      const n = document.getElementById("nm").value.trim(); if (!n) throw new Error("Escribe tu nombre");
-      setName(n); await api(`activities/${a.id}/join`, { name: n, committed: document.getElementById("cmt").checked });
-      toast("¡Listo! Te uniste a la actividad"); await refresh(); viewActivity(id);
+      const n = name || document.getElementById("nm").value.trim(); if (!n) throw new Error("Escribe tu nombre"); setName(n);
+      await api(`activities/${a.id}/join`, { name: n, committed: document.getElementById("cmt").checked }); toast("¡Listo! Te uniste a la actividad"); await refresh(); viewActivity(id);
     });
   }
 }
-
 function viewQr(token) {
-  const sp = S.spaces.find((s) => s.qrToken === token); if (!sp) return notFound();
-  const name = getName();
-  const mine = S.activities.filter((a) => a.spaceId === sp.id && a.status !== "completada" && a.participants.some((p) => p.name === name));
-  const a = mine[0];
-  $app.innerHTML = `<h1>Check-in en ${esc(sp.name)}</h1><div class="card"><strong>Reglas del espacio</strong><ul class="rules">${sp.rules.map((r) => `<li>${esc(r)}</li>`).join("")}</ul></div>
-    ${a ? `<div class="card"><strong>${esc(a.title)}</strong><div class="muted">${fmt(a.startsAt)}</div>
-      <p class="muted">Ubicación: validación de cercanía simulada en la demo.</p>
-      <label>Foto de cómo está el espacio (antes)</label><input type="file" id="ph" accept="image/*" capture="environment">
-      <p><button class="btn" id="ci">Confirmar llegada</button></p></div>`
-      : `<div class="card"><p>${name ? "No estás unido a ninguna actividad en este espacio." : "Primero únete a una actividad."}</p><a class="btn sec" href="#/espacio/${sp.id}">Ver actividades</a></div>`}`;
+  nav("actividades"); const sp = S.spaces.find((s) => s.qrToken === token); if (!sp) return notFound();
+  const name = getName(), a = S.activities.find((x) => x.spaceId === sp.id && x.status !== "completada" && x.participants.some((p) => p.name === name));
+  if (!a) { $app.innerHTML = `${back("Check-in", "#/espacio/" + sp.id)}<div class="card"><p>${name ? "No estás unido a ninguna actividad en este espacio." : "Primero únete a una actividad (escribe tu nombre al unirte)."}</p><a class="btn out" href="#/espacio/${sp.id}">Ver actividades</a></div>`; return; }
+  $app.innerHTML = `<div style="text-align:center"><div class="okring"><svg class="i" style="width:46px;height:46px;stroke:#fff;stroke-width:2.6"><use href="#i-check2"/></svg></div>
+    <h1 style="font-size:34px;margin:10px 0 8px">Confirma tu llegada</h1>
+    <div class="row" style="justify-content:center;margin-bottom:12px"><span class="row" style="font-size:22px;font-weight:900;gap:8px">${ic("pin")} ${esc(sp.name)}</span><span class="chip y" style="font-size:16px;padding:7px 14px">Demostración</span></div>
+    <div class="banner-g">Escanea el QR colocado en el espacio</div></div>
+  <div class="scan"><div class="scanbg">${spaceImg(sp, "scanimg")}</div><div class="corner tl"></div><div class="corner tr"></div><div class="corner bl"></div><div class="corner br"></div><div class="qrbox" id="qrc"></div><span class="simpill">${ic("camera", "s")} Escáner simulado</span></div>
+  <div class="strip g"><span class="ck">${ic("check2")}</span><strong>Cercanía aproximada: verificada</strong></div>
+  <div class="strip t"><span class="ck b">${ic("pin")}</span><strong>Validamos únicamente que estés cerca. No guardamos tu recorrido</strong></div>
+  <div class="card"><label class="muted" for="ph">Foto de cómo está el espacio antes de jugar (opcional)</label><input type="file" id="ph" accept="image/*" capture="environment" style="width:100%;margin:8px 0 0"></div>
+  <button class="btn" id="ci">${ic("calcheck")} Confirmar asistencia</button><p class="muted" style="text-align:center;margin:8px 0 0">Check-in con QR y cercanía aproximada</p>`;
+  if (window.QRCode) new QRCode(document.getElementById("qrc"), { text: location.origin + "/#/qr/" + sp.qrToken, width: 150, height: 150, colorDark: "#0f1a2e" });
   const ci = document.getElementById("ci");
-  if (ci) ci.onclick = () => act(async () => {
-    ci.disabled = true; const photo = await readPhoto(document.getElementById("ph").files[0]);
-    await api(`activities/${a.id}/checkin`, { name, beforePhoto: photo }); toast("Llegada registrada"); await refresh(); location.hash = "#/actividad/" + a.id;
-  });
+  ci.onclick = () => act(async () => { ci.disabled = true; const ph = await readPhoto(document.getElementById("ph").files[0]); await api(`activities/${a.id}/checkin`, { name, beforePhoto: ph }); toast("Llegada registrada"); await refresh(); location.hash = "#/actividad/" + a.id; });
 }
-
 function viewClose(id) {
-  const a = S.activities.find((x) => x.id === id); if (!a) return notFound();
-  const name = getName(), sp = space(a.spaceId);
-  const items = [["basura", "Recogimos la basura"], ["equipos", "Guardamos los equipos"], ["areaOrdenada", "El espacio quedó ordenado"]];
-  $app.innerHTML = `<p><a href="#/actividad/${a.id}">← Volver</a></p><h1>Cierre responsable</h1><p class="muted">${esc(a.title)} · ${esc(sp.name)}</p>
-    ${items.map(([k, t]) => `<label class="check" data-k="${k}"><input type="checkbox" id="ck-${k}"> ${t}</label>`).join("")}
-    <div class="card"><label>Foto de cómo quedó el espacio (después)</label><input type="file" id="ph" accept="image/*" capture="environment">
-      <label class="check" id="incl" style="margin-top:12px"><input type="checkbox" id="inc"> Hay un problema que reportar</label>
-      <div id="incbox" style="display:none"><label>Tipo</label><select id="ict"><option>Basura</option><option>Daño</option><option>Seguridad</option><option>Otro</option></select>
-        <label>Descripción</label><textarea id="itx" rows="2" placeholder="¿Qué pasó?"></textarea></div></div>
-    <button class="btn" id="fin">Confirmar cierre</button>`;
-  document.querySelectorAll(".check[data-k] input").forEach((i) => (i.onchange = () => i.parentElement.classList.toggle("on", i.checked)));
+  nav("actividades"); const a = S.activities.find((x) => x.id === id); if (!a) return notFound();
+  const name = getName(), sp = space(a.spaceId), items = [["basura", "Recogimos la basura"], ["equipos", "Guardamos los equipos"], ["areaOrdenada", "El espacio quedó ordenado"]];
+  $app.innerHTML = `${back("Cierre responsable", "#/actividad/" + a.id)}<p class="sub" style="margin-top:-6px">${esc(a.title)} · ${esc(sp.name)}</p>
+  ${items.map(([k, t]) => `<label class="check"><input type="checkbox" id="ck-${k}"><span>${t}</span></label>`).join("")}
+  <div class="card" style="margin-top:12px"><label class="muted" for="ph">Foto de cómo quedó el espacio (después)</label><input type="file" id="ph" accept="image/*" capture="environment" style="width:100%;margin:8px 0">
+    <label class="check" id="incl"><input type="checkbox" id="inc"><span>Hay un problema que reportar</span></label>
+    <div id="incbox" style="display:none"><div class="field"><div class="ic">${ic("info")}</div><div class="bd"><label for="ict">Tipo</label><select id="ict"><option>Basura</option><option>Daño</option><option>Seguridad</option><option>Otro</option></select></div></div><textarea id="itx" rows="2" placeholder="¿Qué pasó?"></textarea></div></div>
+  <button class="btn" id="fin">Confirmar cierre</button>`;
+  document.querySelectorAll("input[id^=ck-]").forEach((i) => (i.onchange = () => i.parentElement.classList.toggle("on", i.checked)));
   document.getElementById("inc").onchange = (e) => { document.getElementById("incbox").style.display = e.target.checked ? "block" : "none"; document.getElementById("incl").classList.toggle("on", e.target.checked); };
   document.getElementById("fin").onclick = () => act(async () => {
-    const btn = document.getElementById("fin"); btn.disabled = true;
-    const photo = await readPhoto(document.getElementById("ph").files[0]);
+    const b = document.getElementById("fin"); b.disabled = true; const ph = await readPhoto(document.getElementById("ph").files[0]);
     const checklist = Object.fromEntries(items.map(([k]) => [k, document.getElementById("ck-" + k).checked]));
-    const incident = document.getElementById("inc").checked;
-    try {
-      await api(`activities/${a.id}/close`, { name, checklist, afterPhoto: photo, incident, incidentCategory: document.getElementById("ict").value, incidentText: document.getElementById("itx").value });
-    } catch (e) { btn.disabled = false; throw e; }
+    try { await api(`activities/${a.id}/close`, { name, checklist, afterPhoto: ph, incident: document.getElementById("inc").checked, incidentCategory: document.getElementById("ict").value, incidentText: document.getElementById("itx").value }); } catch (e) { b.disabled = false; throw e; }
     toast("Cierre registrado. ¡Gracias por cuidar el espacio!"); await refresh(); location.hash = "#/actividad/" + a.id;
   });
 }
 
+// ---------- Mis espacios, Perfil, En vivo ----------
+function viewMine() {
+  nav("mis-espacios"); const favs = getFavs(), list = S.spaces.filter((s) => favs.includes(s.id));
+  $app.innerHTML = `<h1>Mis espacios</h1><p class="sub">Los parques y losas que guardaste para volver rápido.</p>${list.map(spaceCard).join("") || `<div class="card"><strong>Aún no guardaste ninguno.</strong><p class="muted">Entra a un espacio y toca "Guardar en mis espacios".</p><a class="btn" href="#/">Explorar espacios</a></div>`}`;
+}
+function viewProfile() {
+  nav("perfil"); const n = getName(), mine = S.activities.filter((a) => a.participants.some((p) => p.name === n));
+  const arrivals = mine.filter((a) => a.participants.find((p) => p.name === n)?.checkedInAt).length, clean = mine.filter((a) => a.closure?.cleanSpace).length, pts = arrivals * 5 + clean * 10 + S.proposals.filter((p) => p.proposedBy === n).length * 3;
+  const badges = [[arrivals >= 1, "Primera llegada", "ball"], [clean >= 1, "Dejó limpio", "trash"], [S.proposals.some((p) => p.proposedBy === n), "Proponedor de juegos", "bulb"]];
+  $app.innerHTML = `<h1>Perfil</h1><div class="card"><div class="field" style="margin-bottom:10px"><div class="ic">${ic("user")}</div><div class="bd"><label for="pn">Tu nombre</label><input id="pn" value="${esc(n)}" placeholder="Ej. Lucía"></div></div><button class="btn sm" id="sv">Guardar nombre</button></div>
+  <div class="card"><div class="muted">Puntos de cuidado (solo los ves tú)</div><div class="kpi">${pts}</div><div class="muted">${arrivals} llegadas puntuales · ${clean} cierres con el espacio en buen estado</div></div>
+  <div class="card"><h2 style="margin:0 0 8px">Insignias</h2><div class="row">${badges.map(([ok, t, i]) => `<span class="chip ${ok ? "y" : "gr"}">${ic(i, "s")} ${t}</span>`).join("")}</div>${note("No hay ranking público de personas. Solo se reconoce el cuidado del espacio.")}</div>
+  <a class="btn out" href="#/muni">${ic("chart")} Panel municipal (demo)</a>`;
+  document.getElementById("sv").onclick = () => { setName(document.getElementById("pn").value.trim()); toast("Nombre guardado"); viewProfile(); };
+}
+const EV = { join: "users", checkin: "pin", close: "check", proposal: "bulb", vote: "heart", create: "calplus" };
+function viewLive() {
+  nav(""); const st = S.stats;
+  $app.innerHTML = `${back("Ciudad en vivo", "#/")}
+  <div class="grid2"><div class="card"><div class="row"><span class="pulse"></span><span class="muted">Jugando ahora</span></div><div class="kpi">${st.playingNow}</div></div><div class="card"><div class="muted">Actividades en curso</div><div class="kpi">${st.liveActivities}</div></div>
+  <div class="card"><div class="muted">Vecinos activos</div><div class="kpi">${st.neighbors}</div></div><div class="card"><div class="muted">Propuestas abiertas</div><div class="kpi">${st.proposalsOpen}</div></div></div>
+  <div class="card feed"><h2 style="margin:0 0 4px">Lo que pasa en el barrio</h2>${S.feed.map((f) => `<div class="it"><span class="chip t" style="padding:8px">${ic(EV[f.type] || "info", "s")}</span><div><div>${esc(f.text)}</div><div class="muted">${ago(f.at)}</div></div></div>`).join("")}</div>
+  <div class="card"><h2 style="margin:0 0 8px">Jugando ahora</h2>${S.activities.filter((a) => a.status === "en_curso").map((a) => `<a href="#/actividad/${a.id}" style="text-decoration:none;display:block;margin-bottom:12px"><strong>${esc(a.title)}</strong> <span class="muted">· ${esc(space(a.spaceId)?.name)}</span><div style="margin-top:6px">${a.participants.slice(0, 8).map(avatar).join("")}<span class="muted" style="margin-left:18px">${a.participants.length} personas</span></div></a>`).join("") || '<p class="muted">Nadie jugando por ahora.</p>'}</div>
+  ${note("Actividad simulada para la demostración. Se actualiza sola cada pocos segundos con lo que hagan los usuarios de esta demo.")}`;
+}
+
+// ---------- Panel municipal ----------
 function viewMuni() {
-  const i = S.indicator;
-  $app.innerHTML = `<h1>Panel municipal</h1><p class="muted">Uso responsable de los espacios (datos simulados).</p>
-    <div class="grid">
-      <div class="card"><div class="muted">Actividades cerradas con el espacio en buen estado</div><div class="kpi">${i.pct === null ? "—" : i.pct + "%"}</div><div class="muted">${i.clean} de ${i.completed} completadas</div></div>
-      <div class="card"><div class="muted">Llegadas con check-in</div><div class="kpi">${i.arrivals}</div></div>
-      <div class="card"><div class="muted">Incidencias abiertas</div><div class="kpi">${i.incidentsOpen}</div><div class="muted">${i.incidentsResolved} resueltas</div></div>
-      <div class="card"><div class="muted">Actividades completadas</div><div class="kpi">${i.completed}</div></div></div>
-    <h2>Racha de cuidado por espacio</h2>
-    ${S.spaces.map((s) => `<div class="card row"><strong>${esc(s.name)}</strong><span class="badge">${s.careStreak} usos seguidos en buen estado</span></div>`).join("")}
-    <h2>Incidencias</h2>
-    ${S.incidents.map((n) => `<div class="card"><div class="row"><span class="badge ${n.status === "abierta" ? "warn" : ""}">${n.status}</span><strong>${esc(n.category)}</strong><span class="muted">${esc(space(n.spaceId)?.name)} · ${fmt(n.createdAt)}</span></div>
-      <p>${esc(n.description)}</p>${n.status === "abierta" ? `<button class="btn small" data-res="${n.id}">Marcar como resuelta</button>` : ""}</div>`).join("") || '<p class="muted">Sin incidencias.</p>'}
-    <h2>Demo</h2><button class="btn small sec" id="reset">Reiniciar datos de la demo</button>`;
+  nav("perfil"); const i = S.indicator;
+  $app.innerHTML = `${back("Panel municipal", "#/perfil")}<p class="sub" style="margin-top:-6px">Uso responsable de los espacios. Datos simulados.</p>
+  <div class="grid2"><div class="card"><div class="muted">Actividades cerradas con el espacio en buen estado</div><div class="kpi" style="color:var(--g)">${i.pct === null ? "—" : i.pct + "%"}</div><div class="muted">${i.clean} de ${i.completed} completadas</div></div>
+  <div class="card"><div class="muted">Llegadas con check-in</div><div class="kpi">${i.arrivals}</div></div><div class="card"><div class="muted">Incidencias abiertas</div><div class="kpi" style="color:var(--r)">${i.incidentsOpen}</div><div class="muted">${i.incidentsResolved} resueltas</div></div>
+  <div class="card"><div class="muted">Propuestas con apoyo del barrio</div><div class="kpi">${S.proposals.filter((p) => p.votes.length >= S.stats.approvalVotes).length}</div><div class="muted">de ${S.proposals.length} propuestas</div></div></div>
+  <h2>Racha de cuidado por espacio</h2>${S.spaces.map((s) => `<div class="card between"><strong>${esc(s.name)}</strong><span class="chip">${s.careStreak} usos seguidos en buen estado</span></div>`).join("")}
+  <h2>Incidencias</h2>${S.incidents.map((n) => `<div class="card"><div class="row"><span class="chip ${n.status === "abierta" ? "y" : ""}">${n.status}</span><strong>${esc(n.category)}</strong><span class="muted">${esc(space(n.spaceId)?.name)} · ${ago(n.createdAt)}</span></div><p>${esc(n.description)}</p>${n.status === "abierta" ? `<button class="btn sm" data-res="${n.id}">Marcar como resuelta</button>` : ""}</div>`).join("") || '<p class="muted">Sin incidencias.</p>'}
+  <h2>Demo</h2><button class="btn out sm" id="reset">Reiniciar datos de la demo</button>`;
   document.querySelectorAll("[data-res]").forEach((b) => (b.onclick = () => act(async () => { await api(`incidents/${b.dataset.res}/resolve`, {}); await refresh(); viewMuni(); })));
   document.getElementById("reset").onclick = () => act(async () => { if (!confirm("¿Reiniciar los datos de la demo?")) return; await api("reset", {}); await refresh(); viewMuni(); toast("Demo reiniciada"); });
 }
+function notFound() { nav(""); $app.innerHTML = '<h1>No encontrado</h1><a class="btn" href="#/">Volver al inicio</a>'; }
 
-function notFound() { $app.innerHTML = '<h1>No encontrado</h1><a href="#/">Volver al inicio</a>'; }
-
-async function router() {
+// ---------- enrutador ----------
+async function router(silent) {
   try { await refresh(); } catch { $app.innerHTML = "<p>No se pudo conectar con el servidor.</p>"; return; }
   const [, p, id] = location.hash.split("/");
-  window.scrollTo(0, 0);
-  ({ espacio: viewSpace, actividad: viewActivity, qr: viewQr, cierre: viewClose, muni: viewMuni }[p] || viewHome)(id);
+  if (!silent) window.scrollTo(0, 0);
+  ({ espacio: viewSpace, actividades: viewActs, crear: viewCreate, proponer: viewPropose, actividad: viewActivity, qr: viewQr, cierre: viewClose, "mis-espacios": viewMine, perfil: viewProfile, "en-vivo": viewLive, muni: viewMuni }[p] || viewHome)(id);
 }
-addEventListener("hashchange", router);
-router();
+addEventListener("hashchange", () => router(false));
+setInterval(async () => { // refresco suave solo en pantallas "en vivo"
+  const p = location.hash.split("/")[1]; if (p !== "en-vivo" || document.hidden) return;
+  try { await refresh(); viewLive(); } catch {}
+}, 6000);
+router(false);
 </script>
 </body>
 </html>
