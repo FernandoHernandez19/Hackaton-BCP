@@ -192,6 +192,18 @@ main>*:nth-child(2){animation-delay:.05s}main>*:nth-child(3){animation-delay:.1s
 .onb-skip{position:absolute;right:16px;top:14px;background:none;border:0;font:800 15px Nunito,sans-serif;color:var(--muted);cursor:pointer;min-height:44px;padding:0 8px}
 .dots{display:flex;gap:8px;justify-content:center;margin:0 0 18px}.dots i{width:9px;height:9px;border-radius:50%;background:#dfe3e8;transition:all .2s}.dots i.on{width:26px;border-radius:9px;background:var(--y2)}
 
+
+/* ---------- recorrido 3D del espacio ---------- */
+.m3d-img{position:relative;border-radius:18px;overflow:hidden;background:#0b1d4a;margin-top:12px;aspect-ratio:1672/941}
+.m3d-img img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.hot{position:absolute;transform:translate(-50%,-50%);width:40px;height:40px;border-radius:50%;border:3px solid #fff;background:var(--ink);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0;animation:hotp 2.2s infinite;transition:transform .15s,background .15s;z-index:2}
+.hot svg{width:20px;height:20px}
+.hot:hover{transform:translate(-50%,-50%) scale(1.12)}
+.hot.on{background:var(--y);color:var(--ink);transform:translate(-50%,-50%) scale(1.18);animation:none;box-shadow:0 0 0 6px rgba(255,196,0,.4)}
+@keyframes hotp{0%{box-shadow:0 0 0 0 rgba(255,196,0,.7)}70%{box-shadow:0 0 0 14px rgba(255,196,0,0)}100%{box-shadow:0 0 0 0 rgba(255,196,0,0)}}
+.hot-info{margin-top:12px;background:var(--ysoft);border-radius:16px;padding:14px;min-height:96px}
+.hot-info .hi{width:48px;height:48px;border-radius:14px;background:var(--y);display:flex;align-items:center;justify-content:center;flex:none;margin-right:12px}
+
 /* ---------- versión web (escritorio) ---------- */
 .dnav,.foot{display:none}
 @media (min-width:1024px){
@@ -260,6 +272,8 @@ main[data-view="actividades"]>h1,main[data-view="actividades"]>.sub,main[data-vi
 <symbol id="i-wa" viewBox="0 0 24 24"><path d="M3.8 20.2 5 16A8.2 8.2 0 1 1 8.2 19.1z"/><path d="M9.2 8.8c0 3 2.6 5.8 5.7 6l1.2-1.4-2-1-.9.7a4.4 4.4 0 0 1-2-2l.7-.9-1-2z"/></symbol>
 <symbol id="i-award" viewBox="0 0 24 24"><circle cx="12" cy="9" r="5.6"/><path d="m8.6 13.6-1.6 7 5-2.6 5 2.6-1.6-7"/></symbol>
 <symbol id="i-spark" viewBox="0 0 24 24"><path d="M12 3l1.9 5.3L19 10.2l-5.1 1.9L12 17.4l-1.9-5.3L5 10.2l5.1-1.9z"/><path d="M19 17v4M17 19h4"/></symbol>
+<symbol id="i-leaf" viewBox="0 0 24 24"><path d="M5 19c0-8.5 5-13.5 14.5-14.5C19.500 14 14 19 5.500 19z"/><path d="M5 19l8-8"/></symbol>
+<symbol id="i-recycle" viewBox="0 0 24 24"><path d="M20 11a8 8 0 0 0-14.500-4M4 13a8 8 0 0 0 14.500 4"/><path d="M5.500 3v4h4M18.500 21v-4h-4"/></symbol>
 <symbol id="i-chart" viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-8M22 20H2"/></symbol>
 </defs></svg>
 
@@ -414,7 +428,7 @@ function viewSpace(id) {
     <div class="tile"><div class="h">${ic("clock", "s")}<span>Horario habilitado</span></div><div class="v" style="background:var(--tsoft)">${hoursTxt(s)}</div></div>
     <div class="tile"><div class="h">${ic("users", "s")}<span>Cupo máximo</span></div><div class="v" style="background:var(--ysoft)">${s.capacity} personas</div></div>
     <div class="tile"><div class="h">${ic("ball", "s")}<span>Actividades</span></div><div class="v" style="background:var(--gsoft);color:#126b2f">${esc(s.sports || "Recreación")}</div></div></div>
-  ${streakCard(s)}<div class="card"><h2 style="margin:0">Reglas del espacio</h2><p class="sub" style="margin:4px 0 0">Para que todos disfruten y el espacio se mantenga en buen estado.</p>
+  ${map3d()}${streakCard(s)}<div class="card"><h2 style="margin:0">Reglas del espacio</h2><p class="sub" style="margin:4px 0 0">Para que todos disfruten y el espacio se mantenga en buen estado.</p>
     <div class="rules">${R.map(([i, t]) => `<div>${ic(i)}<br>${esc(t)}</div>`).join("")}</div></div></div><div class="sp-r">
   <div class="card"><h2 style="margin:0 0 10px">Próximas actividades</h2>
     ${acts.map((a) => `<a class="card act" style="box-shadow:none;border:2px solid var(--line);margin-bottom:10px;text-decoration:none;align-items:center" href="#/actividad/${a.id}"><div class="thumb" style="width:64px;height:64px;border-radius:14px">${catImg(a.category, "thumb")}</div><div class="tx"><strong style="font-size:19px">${esc(a.title)}</strong>
@@ -427,6 +441,7 @@ function viewSpace(id) {
   ${note("Reglas y cupos visibles antes de usar el espacio.")}`;
   const qr = location.origin + "/#/qr/" + s.qrToken;
   if (window.QRCode) new QRCode(document.getElementById("qr"), { text: qr, width: 150, height: 150 }); else document.getElementById("qr").textContent = qr;
+  bind3d();
   document.getElementById("fav").onclick = () => { setFavs(isFav ? favs.filter((x) => x !== id) : [...favs, id]); toast(isFav ? "Quitado de tus espacios" : "Guardado en tus espacios"); viewSpace(id); };
 }
 
@@ -667,6 +682,27 @@ function maybeOnboard() {
     o.innerHTML = `<div class="onb-card"><button class="onb-skip" id="sk">Saltar</button><div class="onb-art">${art}</div><h2>${t}</h2><p>${d}</p><div class="dots">${steps.map((_, k) => `<i class="${k === i ? "on" : ""}"></i>`).join("")}</div><button class="btn" id="nx">${i === steps.length - 1 ? "Empezar" : "Siguiente"}</button></div>`;
     o.querySelector("#sk").onclick = end; o.querySelector("#nx").onclick = () => (i === steps.length - 1 ? end() : (i++, draw())); };
   draw();
+}
+
+// ---------- recorrido 3D del espacio (ilustración con puntos) ----------
+const HOT = [
+  { x: 31.7, y: 22.8, i: "ball", t: "Cancha multiuso", d: "Fútbol, vóley y básquet. Cada grupo usa la cancha en su horario habilitado.", chip: "Respeta los turnos" },
+  { x: 75.5, y: 18.1, i: "play", t: "Juegos infantiles", d: "Zona para niñas y niños. Cuida los juegos y no dejes envases en el área.", chip: "Cuida las instalaciones" },
+  { x: 55.5, y: 46.2, i: "leaf", t: "Área verde", d: "Para descansar y conversar. No pises los jardines y recoge lo que lleves.", chip: "Deja limpio" },
+  { x: 65.4, y: 55.3, i: "recycle", t: "Zona de reciclaje", d: "Al terminar, usa los tachos de reciclaje: es parte del cierre responsable.", chip: "Cierre en 30 segundos" },
+  { x: 41.1, y: 73.3, i: "pin", t: "Ingreso accesible", d: "Piso guía y rampa. Aquí escaneas el QR del espacio para confirmar tu llegada.", chip: "Check-in con QR" },
+  { x: 26.6, y: 48.4, i: "trash", t: "Tachos", d: "Deja tu basura en el tacho más cercano antes de irte y reporta si está lleno.", chip: "Reporta incidencias" }
+];
+function map3d() {
+  return `<div class="card m3d"><div class="between"><strong style="font-size:19px">Recorre el espacio</strong><span class="chip t">Toca los puntos</span></div>
+  <div class="m3d-img"><img src="/images/app/espacio-3d.png" alt="Ilustración en 3D de un espacio público con cancha, juegos, área verde y zona de reciclaje" onerror="this.closest('.m3d').remove()">${HOT.map((h, k) => `<button class="hot" data-k="${k}" style="left:${h.x}%;top:${h.y}%" aria-label="${esc(h.t)}">${ic(h.i)}</button>`).join("")}</div>
+  <div class="hot-info" id="hinfo" aria-live="polite"></div><div class="muted" style="margin-top:8px">Ilustración referencial de un espacio tipo: no representa este espacio en particular.</div></div>`;
+}
+function bind3d() {
+  const box = document.querySelector(".m3d"); if (!box) return;
+  const show = (k) => { const h = HOT[k]; box.querySelectorAll(".hot").forEach((b) => b.classList.toggle("on", +b.dataset.k === k));
+    box.querySelector("#hinfo").innerHTML = `<div class="row" style="flex-wrap:nowrap;align-items:flex-start"><span class="hi">${ic(h.i)}</span><div><strong style="font-size:19px">${esc(h.t)}</strong><div style="margin-top:2px">${esc(h.d)}</div><span class="chip y" style="margin-top:8px">${esc(h.chip)}</span></div></div>`; };
+  box.querySelectorAll(".hot").forEach((b) => (b.onclick = () => show(+b.dataset.k))); show(0);
 }
 
 // ---------- Mis espacios, Perfil, En vivo ----------
